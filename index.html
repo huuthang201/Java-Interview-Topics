@@ -359,6 +359,33 @@
     .compare-table { font-size: 11px; }
     .code-block { font-size: 11px; }
   }
+
+  /* LEVEL BADGES */
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .level-badge.intern  { background: rgba(100,116,139,0.18); color: #94a3b8; border: 1px solid rgba(100,116,139,0.35); }
+  .level-badge.junior  { background: rgba(52,211,153,0.13);  color: #34d399; border: 1px solid rgba(52,211,153,0.32); }
+  .level-badge.middle  { background: rgba(56,189,248,0.13);  color: #38bdf8; border: 1px solid rgba(56,189,248,0.32); }
+  .level-badge.senior  { background: rgba(249,115,22,0.15);  color: #f97316; border: 1px solid rgba(249,115,22,0.35); }
+  .level-badge.expert  { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.35); }
+
+  /* Level filter active states */
+  .filter-tab.lv-intern.active  { background:#475569; border-color:#475569; color:#fff; }
+  .filter-tab.lv-junior.active  { background:var(--green); border-color:var(--green); color:#000; }
+  .filter-tab.lv-middle.active  { background:var(--accent2); border-color:var(--accent2); color:#000; }
+  .filter-tab.lv-senior.active  { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .filter-tab.lv-expert.active  { background:var(--accent3); border-color:var(--accent3); color:#fff; }
 </style>
 </head>
 <body>
@@ -399,6 +426,14 @@
       <span class="filter-tab" data-filter="architecture">🧱 Architecture</span>
       <span class="filter-tab" data-filter="systemdesign">🔥 System Design</span>
     </div>
+    <div class="filter-tabs" style="margin-top:6px">
+      <span style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;align-self:center;margin-right:4px">LEVEL:</span>
+      <span class="filter-tab lv-intern" data-level="intern">🔘 Intern</span>
+      <span class="filter-tab lv-junior" data-level="junior">🟢 Junior</span>
+      <span class="filter-tab lv-middle" data-level="middle">🔵 Middle</span>
+      <span class="filter-tab lv-senior" data-level="senior">🟠 Senior</span>
+      <span class="filter-tab lv-expert" data-level="expert">🟣 Expert</span>
+    </div>
   </div>
 
   <!-- ===================== JAVA CORE ===================== -->
@@ -415,6 +450,7 @@
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">01</span>
       <span class="qa-q-text">JDK, JRE, JVM khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -433,6 +469,7 @@
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">02</span>
       <span class="qa-q-text">Java là pass-by-value hay pass-by-reference?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -454,6 +491,7 @@ System.out.println(s); <span class="cm">// "Hello World" - append có, nhưng re
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">03</span>
       <span class="qa-q-text">4 tính chất OOP trong Java?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -471,6 +509,7 @@ System.out.println(s); <span class="cm">// "Hello World" - append có, nhưng re
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">04</span>
       <span class="qa-q-text">Abstract class vs Interface khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -491,6 +530,7 @@ System.out.println(s); <span class="cm">// "Hello World" - append có, nhưng re
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">05</span>
       <span class="qa-q-text">== vs .equals() khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -513,6 +553,7 @@ System.out.println(c == d);        <span class="cm">// true  - cùng String Pool
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">06</span>
       <span class="qa-q-text">String, StringBuilder, StringBuffer khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -543,6 +584,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">07</span>
       <span class="qa-q-text">final, finally, finalize khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -568,6 +610,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">08</span>
       <span class="qa-q-text">static keyword dùng để làm gì?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -594,6 +637,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">09</span>
       <span class="qa-q-text">Overloading vs Overriding khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -623,6 +667,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">10</span>
       <span class="qa-q-text">Constructor có thể được override không?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -647,6 +692,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">11</span>
       <span class="qa-q-text">ArrayList vs LinkedList khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -666,6 +712,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">12</span>
       <span class="qa-q-text">HashMap hoạt động như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -690,6 +737,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">13</span>
       <span class="qa-q-text">HashMap vs HashTable khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -709,6 +757,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">14</span>
       <span class="qa-q-text">HashMap vs ConcurrentHashMap khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -727,6 +776,7 @@ StringBuilder sb = <span class="kw">new</span> StringBuilder();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">15</span>
       <span class="qa-q-text">HashSet hoạt động như thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -746,6 +796,7 @@ map.put(<span class="st">"hello"</span>, PRESENT);  <span class="cm">// PRESENT 
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">16</span>
       <span class="qa-q-text">equals() và hashCode() contract là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -770,6 +821,7 @@ map.put(<span class="st">"hello"</span>, PRESENT);  <span class="cm">// PRESENT 
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">17</span>
       <span class="qa-q-text">Comparable vs Comparator khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -796,6 +848,7 @@ students.sort(Comparator.comparingDouble(<span class="cl">Student</span>::getGpa
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">18</span>
       <span class="qa-q-text">List, Set, Map khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -813,6 +866,7 @@ students.sort(Comparator.comparingDouble(<span class="cl">Student</span>::getGpa
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">19</span>
       <span class="qa-q-text">Iterator vs ListIterator khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -831,6 +885,7 @@ students.sort(Comparator.comparingDouble(<span class="cl">Student</span>::getGpa
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">20</span>
       <span class="qa-q-text">fail-fast vs fail-safe iterator là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -859,6 +914,7 @@ Iterator&lt;String&gt; it = list.iterator();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">21</span>
       <span class="qa-q-text">Checked vs Unchecked Exception khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -878,6 +934,7 @@ Iterator&lt;String&gt; it = list.iterator();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">22</span>
       <span class="qa-q-text">Error vs Exception khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -903,6 +960,7 @@ Iterator&lt;String&gt; it = list.iterator();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">23</span>
       <span class="qa-q-text">try-with-resources là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -928,6 +986,7 @@ BufferedReader br = <span class="kw">null</span>;
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">24</span>
       <span class="qa-q-text">finally block có luôn chạy không?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -951,6 +1010,7 @@ BufferedReader br = <span class="kw">null</span>;
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">25</span>
       <span class="qa-q-text">Custom Exception tạo như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -982,6 +1042,7 @@ BufferedReader br = <span class="kw">null</span>;
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">26</span>
       <span class="qa-q-text">Thread vs Runnable khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1006,6 +1067,7 @@ pool.submit(task);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">27</span>
       <span class="qa-q-text">synchronized keyword dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1033,6 +1095,7 @@ pool.submit(task);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">28</span>
       <span class="qa-q-text">volatile keyword dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1056,6 +1119,7 @@ pool.submit(task);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">29</span>
       <span class="qa-q-text">wait(), notify(), notifyAll() dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1087,6 +1151,7 @@ pool.submit(task);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">30</span>
       <span class="qa-q-text">Deadlock là gì? Cách tránh?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1108,6 +1173,7 @@ pool.submit(task);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">31</span>
       <span class="qa-q-text">ThreadPool và ExecutorService là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1138,6 +1204,7 @@ pool.shutdown(); <span class="cm">// dừng nhận task mới, chờ task hiện
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">32</span>
       <span class="qa-q-text">Callable vs Runnable khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1163,6 +1230,7 @@ Integer result2 = future.get(<span class="num">5</span>, TimeUnit.SECONDS); <spa
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">33</span>
       <span class="qa-q-text">synchronized vs ReentrantLock khác nhau thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1190,6 +1258,7 @@ Integer result2 = future.get(<span class="num">5</span>, TimeUnit.SECONDS); <spa
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">34</span>
       <span class="qa-q-text">Atomic classes là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1211,6 +1280,7 @@ count.compareAndSet(<span class="num">5</span>, <span class="num">10</span>);   
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">136</span>
       <span class="qa-q-text">CompletableFuture là gì? Dùng thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1249,6 +1319,7 @@ CompletableFuture.supplyAsync(() -&gt; fetchData())
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">137</span>
       <span class="qa-q-text">Thread vs Process khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1269,6 +1340,7 @@ CompletableFuture.supplyAsync(() -&gt; fetchData())
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">138</span>
       <span class="qa-q-text">Livelock là gì? Khác Deadlock thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1296,6 +1368,7 @@ CompletableFuture.supplyAsync(() -&gt; fetchData())
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">139</span>
       <span class="qa-q-text">Race Condition là gì? Cách phòng tránh?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1323,6 +1396,7 @@ ConcurrentHashMap, CopyOnWriteArrayList...</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">140</span>
       <span class="qa-q-text">Debug Deadlock trong production bằng cách nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1356,6 +1430,7 @@ GET /actuator/threaddump           <span class="cm"># xem thread state qua HTTP<
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">35</span>
       <span class="qa-q-text">Lambda Expression là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1381,6 +1456,7 @@ list.sort((a, b) -> a.length() - b.length());</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">36</span>
       <span class="qa-q-text">Functional Interface là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1401,6 +1477,7 @@ list.sort((a, b) -> a.length() - b.length());</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">37</span>
       <span class="qa-q-text">Stream API là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1428,6 +1505,7 @@ list.sort((a, b) -> a.length() - b.length());</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">38</span>
       <span class="qa-q-text">Optional là gì? Tại sao dùng?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1453,6 +1531,7 @@ optional.map(User::getName).orElse(<span class="st">"Unknown"</span>); <span cla
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">39</span>
       <span class="qa-q-text">Method Reference là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1474,6 +1553,7 @@ optional.map(User::getName).orElse(<span class="st">"Unknown"</span>); <span cla
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">40</span>
       <span class="qa-q-text">default method trong Interface là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1498,6 +1578,7 @@ optional.map(User::getName).orElse(<span class="st">"Unknown"</span>); <span cla
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">41</span>
       <span class="qa-q-text">Heap vs Stack trong JVM?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1523,6 +1604,7 @@ optional.map(User::getName).orElse(<span class="st">"Unknown"</span>); <span cla
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">42</span>
       <span class="qa-q-text">Garbage Collection hoạt động như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1547,6 +1629,7 @@ optional.map(User::getName).orElse(<span class="st">"Unknown"</span>); <span cla
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">43</span>
       <span class="qa-q-text">String Pool là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1566,6 +1649,7 @@ System.out.println(a == c.intern()); <span class="cm">// true - intern() lấy t
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">44</span>
       <span class="qa-q-text">Strong, Weak, Soft, Phantom Reference khác nhau thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1584,6 +1668,7 @@ System.out.println(a == c.intern()); <span class="cm">// true - intern() lấy t
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">45</span>
       <span class="qa-q-text">ClassLoader là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1604,6 +1689,7 @@ Custom ClassLoader        <span class="cm">← load từ DB, network, encrypted 
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">141</span>
       <span class="qa-q-text">JIT Compiler là gì? Tại sao JVM khởi động chậm nhưng sau đó nhanh?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1629,6 +1715,7 @@ Threshold mặc định: ~10,000 lần gọi = hot method</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">142</span>
       <span class="qa-q-text">JVM Tuning — các JVM flags quan trọng là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1670,6 +1757,7 @@ java -Xms512m -Xmx1g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError \
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">46</span>
       <span class="qa-q-text">Singleton Pattern là gì? Implement thread-safe?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1705,6 +1793,7 @@ java -Xms512m -Xmx1g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError \
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">47</span>
       <span class="qa-q-text">Immutable class là gì? Tạo như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1740,6 +1829,7 @@ java -Xms512m -Xmx1g -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError \
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">48</span>
       <span class="qa-q-text">Serialization là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1766,6 +1856,7 @@ User loaded = (User) ois.readObject();</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">49</span>
       <span class="qa-q-text">Java Reflection là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1793,6 +1884,7 @@ f.set(userObject, <span class="num">25</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">50</span>
       <span class="qa-q-text">try-catch có ảnh hưởng hiệu năng không?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1829,6 +1921,7 @@ f.set(userObject, <span class="num">25</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">51</span>
       <span class="qa-q-text">Spring Boot là gì? Khác gì với Spring Framework?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1849,6 +1942,7 @@ f.set(userObject, <span class="num">25</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">52</span>
       <span class="qa-q-text">@SpringBootApplication gồm những annotation nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1875,6 +1969,7 @@ f.set(userObject, <span class="num">25</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">53</span>
       <span class="qa-q-text">Auto-configuration hoạt động như thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1895,6 +1990,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">54</span>
       <span class="qa-q-text">Dependency Injection là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1925,6 +2021,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">55</span>
       <span class="qa-q-text">IoC Container là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1943,6 +2040,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">56</span>
       <span class="qa-q-text">Bean là gì?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1973,6 +2071,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">57</span>
       <span class="qa-q-text">@Component vs @Service vs @Repository vs @Controller khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -1993,6 +2092,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">58</span>
       <span class="qa-q-text">Bean Scope là gì? Các loại scope?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2016,6 +2116,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">59</span>
       <span class="qa-q-text">@Autowired hoạt động như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2040,6 +2141,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">60</span>
       <span class="qa-q-text">@Qualifier dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2062,6 +2164,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">61</span>
       <span class="qa-q-text">@Primary dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2083,6 +2186,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">62</span>
       <span class="qa-q-text">Constructor injection vs Field injection — cái nào tốt hơn?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2103,6 +2207,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">63</span>
       <span class="qa-q-text">Circular Dependency là gì? Cách xử lý?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2126,6 +2231,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">64</span>
       <span class="qa-q-text">DispatcherServlet là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2151,6 +2257,7 @@ HTTP Response</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">65</span>
       <span class="qa-q-text">@RestController vs @Controller khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2180,6 +2287,7 @@ HTTP Response</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">66</span>
       <span class="qa-q-text">@PathVariable vs @RequestParam khác nhau thế nào?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2208,6 +2316,7 @@ Page&lt;User&gt; <span class="fn">getAll</span>(
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">67</span>
       <span class="qa-q-text">@RequestBody vs @ResponseBody?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2230,6 +2339,7 @@ User <span class="fn">create</span>(<span class="an">@RequestBody</span> <span c
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">68</span>
       <span class="qa-q-text">ResponseEntity là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2256,6 +2366,7 @@ ResponseEntity.notFound().build();         <span class="cm">// 404</span></div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">69</span>
       <span class="qa-q-text">Exception handling trong Spring Boot thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2287,6 +2398,7 @@ ResponseEntity.notFound().build();         <span class="cm">// 404</span></div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">70</span>
       <span class="qa-q-text">Filter vs Interceptor khác nhau thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2318,6 +2430,7 @@ ResponseEntity.notFound().build();         <span class="cm">// 404</span></div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">71</span>
       <span class="qa-q-text">JPA là gì? Hibernate liên quan thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2339,6 +2452,7 @@ Database (MySQL, PostgreSQL...)</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">72</span>
       <span class="qa-q-text">@Entity, @Table, @Column dùng để làm gì?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2370,6 +2484,7 @@ Database (MySQL, PostgreSQL...)</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">73</span>
       <span class="qa-q-text">Các loại GenerationType trong @GeneratedValue?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2390,6 +2505,7 @@ Database (MySQL, PostgreSQL...)</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">74</span>
       <span class="qa-q-text">JpaRepository cung cấp gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2412,6 +2528,7 @@ userRepo.deleteById(<span class="num">1L</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">75</span>
       <span class="qa-q-text">Derived Query Method là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2441,6 +2558,7 @@ userRepo.deleteById(<span class="num">1L</span>);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">76</span>
       <span class="qa-q-text">@Query dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2467,6 +2585,7 @@ List&lt;User&gt; <span class="fn">findRecentUsers</span>(<span class="an">@Param
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">77</span>
       <span class="qa-q-text">N+1 Problem là gì? Cách tránh?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2495,6 +2614,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">78</span>
       <span class="qa-q-text">FetchType LAZY vs EAGER khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2515,6 +2635,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">79</span>
       <span class="qa-q-text">@Transactional dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2537,6 +2658,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">80</span>
       <span class="qa-q-text">@Transactional propagation là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2560,6 +2682,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">81</span>
       <span class="qa-q-text">@Transactional rollbackFor dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2585,6 +2708,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">82</span>
       <span class="qa-q-text">Pagination trong Spring Data JPA thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2617,6 +2741,7 @@ page.isLast();             <span class="cm">// trang cuối chưa?</span></div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">83</span>
       <span class="qa-q-text">Spring Security hoạt động như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2653,6 +2778,7 @@ SecurityFilterChain <span class="fn">securityFilterChain</span>(HttpSecurity htt
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">84</span>
       <span class="qa-q-text">Authentication vs Authorization khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2674,6 +2800,7 @@ Authorization:  request đến /admin/users → Spring kiểm tra authentication
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">85</span>
       <span class="qa-q-text">JWT là gì? Dùng trong Spring Security thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2697,6 +2824,7 @@ Authorization:  request đến /admin/users → Spring kiểm tra authentication
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">86</span>
       <span class="qa-q-text">@PreAuthorize vs @Secured khác nhau thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2724,6 +2852,7 @@ Authorization:  request đến /admin/users → Spring kiểm tra authentication
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">87</span>
       <span class="qa-q-text">CSRF là gì? Spring Security xử lý thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2744,6 +2873,7 @@ http.csrf(csrf -> csrf.disable());
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">88</span>
       <span class="qa-q-text">PasswordEncoder là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2769,6 +2899,7 @@ user.setPassword(encoder.encode(<span class="st">"rawPassword"</span>));
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">147</span>
       <span class="qa-q-text">OAuth2 flow hoạt động thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2799,6 +2930,7 @@ PKCE:               Mobile/SPA app (thay Implicit)</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">148</span>
       <span class="qa-q-text">Refresh Token là gì? Cách revoke JWT?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2828,6 +2960,7 @@ redis.set(<span class="st">"blacklist:"</span> + jti, <span class="st">"revoked"
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">149</span>
       <span class="qa-q-text">Rate Limiting implement thế nào? Token Bucket vs Sliding Window?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2865,6 +2998,7 @@ redis.set(<span class="st">"blacklist:"</span> + jti, <span class="st">"revoked"
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">150</span>
       <span class="qa-q-text">Brute Force Protection — các kỹ thuật phòng chống?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2897,6 +3031,7 @@ redis.delete(key);</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">89</span>
       <span class="qa-q-text">application.properties vs application.yml?</span>
+      <span class="level-badge intern">🔘 Intern</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2924,6 +3059,7 @@ spring:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">90</span>
       <span class="qa-q-text">@Value vs @ConfigurationProperties khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2955,6 +3091,7 @@ spring:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">91</span>
       <span class="qa-q-text">Profile trong Spring Boot là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -2989,6 +3126,7 @@ RealEmailService <span class="fn">emailService</span>() { <span class="kw">retur
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">92</span>
       <span class="qa-q-text">Spring Boot Actuator là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3011,6 +3149,7 @@ RealEmailService <span class="fn">emailService</span>() { <span class="kw">retur
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">93</span>
       <span class="qa-q-text">@Scheduled dùng để làm gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3032,6 +3171,7 @@ RealEmailService <span class="fn">emailService</span>() { <span class="kw">retur
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">94</span>
       <span class="qa-q-text">@Async dùng để làm gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3062,6 +3202,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">95</span>
       <span class="qa-q-text">@SpringBootTest vs @WebMvcTest khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3095,6 +3236,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">96</span>
       <span class="qa-q-text">MockMvc là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3118,6 +3260,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">97</span>
       <span class="qa-q-text">@MockBean vs @Mock khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3148,6 +3291,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">98</span>
       <span class="qa-q-text">Caching trong Spring Boot thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3177,6 +3321,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">99</span>
       <span class="qa-q-text">Spring Boot Starter là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3197,6 +3342,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">100</span>
       <span class="qa-q-text">Embedded Server trong Spring Boot là gì? Cách đổi sang Jetty?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3224,6 +3370,7 @@ String result = future.get();  <span class="cm">// block đợi</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">101</span>
       <span class="qa-q-text">@Bean vs @Component khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3253,6 +3400,7 @@ RestTemplate <span class="fn">restTemplate</span>() {
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">102</span>
       <span class="qa-q-text">Lazy initialization là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3277,6 +3425,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">103</span>
       <span class="qa-q-text">Spring AOP là gì? Các khái niệm cơ bản?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3318,6 +3467,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">151</span>
       <span class="qa-q-text">Unit test vs Integration test vs E2E test khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3352,6 +3502,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">152</span>
       <span class="qa-q-text">Mockito — @Mock, @InjectMocks, verify(), ArgumentCaptor dùng thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3399,6 +3550,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">153</span>
       <span class="qa-q-text">Testcontainers là gì? Tại sao tốt hơn H2 in-memory?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3438,6 +3590,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">154</span>
       <span class="qa-q-text">TDD là gì? Red-Green-Refactor cycle hoạt động thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3477,6 +3630,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">104</span>
       <span class="qa-q-text">Spring Boot Externalized Configuration thứ tự ưu tiên?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3497,6 +3651,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">105</span>
       <span class="qa-q-text">Cách tối ưu startup time Spring Boot?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3516,6 +3671,7 @@ spring.main.lazy-initialization=true
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">106</span>
       <span class="qa-q-text">Validation trong Spring Boot thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3549,6 +3705,7 @@ User <span class="fn">create</span>(<span class="an">@Valid</span> <span class="
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">107</span>
       <span class="qa-q-text">Optimistic vs Pessimistic Locking là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3580,6 +3737,7 @@ Optional&lt;Product&gt; <span class="fn">findByIdWithLock</span>(<span class="an
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">108</span>
       <span class="qa-q-text">CORS là gì? Cấu hình trong Spring Boot thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3611,6 +3769,7 @@ WebMvcConfigurer <span class="fn">corsConfigurer</span>() {
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">109</span>
       <span class="qa-q-text">Spring Boot DevTools là gì?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3634,6 +3793,7 @@ WebMvcConfigurer <span class="fn">corsConfigurer</span>() {
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">110</span>
       <span class="qa-q-text">@PostConstruct và @PreDestroy là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3677,6 +3837,7 @@ WebMvcConfigurer <span class="fn">corsConfigurer</span>() {
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">111</span>
       <span class="qa-q-text">Kafka là gì? Tại sao dùng Kafka?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3698,6 +3859,7 @@ WebMvcConfigurer <span class="fn">corsConfigurer</span>() {
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">112</span>
       <span class="qa-q-text">Topic, Partition, Offset, Consumer Group trong Kafka là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3723,6 +3885,7 @@ Consumer Group B: 1 consumer  → consumer đó đọc cả 3 partition</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">113</span>
       <span class="qa-q-text">Kafka đảm bảo thứ tự message như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3746,6 +3909,7 @@ producer.send(<span class="kw">new</span> ProducerRecord&lt;&gt;(
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">114</span>
       <span class="qa-q-text">At-most-once, At-least-once, Exactly-once trong Kafka là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3771,6 +3935,7 @@ props.put(<span class="st">"transactional.id"</span>, <span class="st">"my-produ
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">115</span>
       <span class="qa-q-text">Kafka Replication và Leader/Follower hoạt động thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3795,6 +3960,7 @@ acks=all  <span class="cm">// đảm bảo không mất data khi leader chết</
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">116</span>
       <span class="qa-q-text">Kafka vs RabbitMQ khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3816,6 +3982,7 @@ acks=all  <span class="cm">// đảm bảo không mất data khi leader chết</
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">117</span>
       <span class="qa-q-text">Dùng Kafka trong Spring Boot như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3864,6 +4031,7 @@ spring.kafka:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">118</span>
       <span class="qa-q-text">Redis là gì? Tại sao dùng Redis?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3886,6 +4054,7 @@ spring.kafka:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">119</span>
       <span class="qa-q-text">Các kiểu dữ liệu trong Redis là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3917,6 +4086,7 @@ ZRANGE leaderboard 0 9 REV WITHSCORES  <span class="cm"># top 10</span></div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">120</span>
       <span class="qa-q-text">Cache Aside Pattern và Write-Through là gì?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3944,6 +4114,7 @@ User user = redis.get(<span class="st">"user:"</span> + id);
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">121</span>
       <span class="qa-q-text">Cache Stampede / Thundering Herd là gì? Cách xử lý?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3976,6 +4147,7 @@ RLock lock = redisson.getLock(<span class="st">"lock:product:list"</span>);
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">122</span>
       <span class="qa-q-text">Redis Persistence: RDB vs AOF là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -3996,6 +4168,7 @@ RLock lock = redisson.getLock(<span class="st">"lock:product:list"</span>);
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">123</span>
       <span class="qa-q-text">Dùng Redis Cache trong Spring Boot như thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4047,6 +4220,7 @@ spring.cache:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">124</span>
       <span class="qa-q-text">Microservice vs Monolith khác nhau thế nào?</span>
+      <span class="level-badge junior">🟢 Junior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4068,6 +4242,7 @@ spring.cache:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">125</span>
       <span class="qa-q-text">API Gateway là gì? Tại sao cần?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4092,6 +4267,7 @@ spring.cache:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">126</span>
       <span class="qa-q-text">Circuit Breaker Pattern là gì? Tại sao cần?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4121,6 +4297,7 @@ HALF-OPEN: Thử vài request xem B đã recover chưa</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">127</span>
       <span class="qa-q-text">Service Discovery là gì? Eureka hoạt động thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4152,6 +4329,7 @@ HALF-OPEN: Thử vài request xem B đã recover chưa</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">128</span>
       <span class="qa-q-text">Saga Pattern là gì? Choreography vs Orchestration?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4188,6 +4366,7 @@ Order Service → phát event "OrderCreated"
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">129</span>
       <span class="qa-q-text">ACID là gì? Giải thích từng thuộc tính?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4207,6 +4386,7 @@ Order Service → phát event "OrderCreated"
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">130</span>
       <span class="qa-q-text">Transaction Isolation Levels là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4231,6 +4411,7 @@ Order Service → phát event "OrderCreated"
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">131</span>
       <span class="qa-q-text">Index trong database là gì? Khi nào nên/không nên dùng?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4260,6 +4441,7 @@ CREATE INDEX idx_order ON orders(user_id, created_at, status);
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">132</span>
       <span class="qa-q-text">N+1 Query Problem là gì? Cách fix?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4290,6 +4472,7 @@ List&lt;Order&gt; <span class="fn">findAll</span>();
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">133</span>
       <span class="qa-q-text">Optimistic vs Pessimistic Locking là gì?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4321,6 +4504,7 @@ Product <span class="fn">findByIdForUpdate</span>(<span class="an">@Param</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">134</span>
       <span class="qa-q-text">SQL vs NoSQL: Khi nào dùng cái nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4343,6 +4527,7 @@ Product <span class="fn">findByIdForUpdate</span>(<span class="an">@Param</span>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">135</span>
       <span class="qa-q-text">Database Sharding là gì? Khi nào cần?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4368,6 +4553,7 @@ Shard 4: user_id % 4 == 3  → DB Server 4</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">143</span>
       <span class="qa-q-text">Idempotency là gì? Tại sao quan trọng trong microservice?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4396,6 +4582,7 @@ redis.set(<span class="st">"idempotent:"</span> + key, result, Duration.ofHours(
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">144</span>
       <span class="qa-q-text">Event-Driven Architecture là gì? Khác REST thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4425,6 +4612,7 @@ eventBus.publish(<span class="st">"order.created"</span>, order);  <span class="
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">145</span>
       <span class="qa-q-text">CAP Theorem là gì? Tại sao không thể có cả 3?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4449,6 +4637,7 @@ eventBus.publish(<span class="st">"order.created"</span>, order);  <span class="
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">146</span>
       <span class="qa-q-text">Two-Phase Commit (2PC) là gì? Tại sao ít dùng trong microservice?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4476,6 +4665,7 @@ Phase 2 - Commit/Abort:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">160</span>
       <span class="qa-q-text">EXPLAIN ANALYZE — đọc query execution plan thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4509,6 +4699,7 @@ Buffers: hit=100 read=500 <span class="cm">← read nhiều = cache miss, chậm
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">161</span>
       <span class="qa-q-text">HikariCP là gì? Cấu hình Connection Pool như thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4536,6 +4727,7 @@ pool_size = (4 * 2) + 1 = 9 → ~10</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">162</span>
       <span class="qa-q-text">Query Optimization — các kỹ thuật thực tế thường dùng?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4581,6 +4773,7 @@ CREATE INDEX idx_cover ON orders(status, created_at, user_id, total);
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">155</span>
       <span class="qa-q-text">Docker là gì? Image vs Container khác nhau thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4616,6 +4809,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">156</span>
       <span class="qa-q-text">Docker Compose — chạy multi-service local thế nào?</span>
+      <span class="level-badge middle">🔵 Middle</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4666,6 +4860,7 @@ docker-compose down -v        <span class="cm"># Dừng + xóa volumes</span></d
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">157</span>
       <span class="qa-q-text">CI/CD là gì? Viết GitHub Actions pipeline cho Spring Boot?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4718,6 +4913,7 @@ jobs:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">158</span>
       <span class="qa-q-text">Monitoring với Prometheus + Grafana + Spring Actuator hoạt động thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4755,6 +4951,7 @@ scrape_configs:
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">159</span>
       <span class="qa-q-text">ELK Stack là gì? Centralized Logging hoạt động thế nào?</span>
+      <span class="level-badge senior">🟠 Senior</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4794,6 +4991,7 @@ log.info(<span class="st">"Order created"</span>, kv(<span class="st">"orderId"<
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">163</span>
       <span class="qa-q-text">Clean Architecture là gì? Tại sao business logic không nên phụ thuộc framework?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4829,6 +5027,7 @@ log.info(<span class="st">"Order created"</span>, kv(<span class="st">"orderId"<
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">164</span>
       <span class="qa-q-text">Hexagonal Architecture (Ports &amp; Adapters) là gì?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4865,6 +5064,7 @@ gRPC             →→→                →→→  Port: PaymentGateway
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">165</span>
       <span class="qa-q-text">DDD — Domain Driven Design các khái niệm cơ bản?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4897,6 +5097,7 @@ gRPC             →→→                →→→  Port: PaymentGateway
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">166</span>
       <span class="qa-q-text">Design Rate Limiter — các thuật toán và implement ở scale?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4927,6 +5128,7 @@ if count &gt; 100: return 429 Too Many Requests</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">167</span>
       <span class="qa-q-text">Design URL Shortener (bit.ly) — xử lý 100M URLs, 10B redirects/ngày?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -4965,6 +5167,7 @@ if count &gt; 100: return 429 Too Many Requests</div>
     <div class="qa-question" onclick="toggle(this)">
       <span class="qa-num">168</span>
       <span class="qa-q-text">Design Notification System — gửi 1 tỷ notifications/ngày?</span>
+      <span class="level-badge expert">🟣 Expert</span>
       <span class="qa-toggle">▾</span>
     </div>
     <div class="qa-answer">
@@ -5015,12 +5218,15 @@ Key Design Decisions:
     card.classList.toggle('open');
   }
 
-  // Search
+  // Search & Filter
   const searchBox = document.getElementById('searchBox');
   const cards = document.querySelectorAll('.qa-card');
   const noResult = document.getElementById('noResult');
-  const filterTabs = document.querySelectorAll('.filter-tab');
+  const topicTabs = document.querySelectorAll('.filter-tab[data-filter]');
+  const levelTabs = document.querySelectorAll('.filter-tab[data-level]');
+
   let activeFilter = 'all';
+  let activeLevel  = 'all';
 
   function filterCards() {
     const query = searchBox.value.toLowerCase().trim();
@@ -5028,9 +5234,16 @@ Key Design Decisions:
     cards.forEach(card => {
       const text = card.innerText.toLowerCase();
       const tags = card.dataset.tags || '';
+
       const matchSearch = !query || text.includes(query);
-      const matchFilter = activeFilter === 'all' || tags.includes(activeFilter);
-      if (matchSearch && matchFilter) {
+      const matchTopic  = activeFilter === 'all' || tags.includes(activeFilter);
+
+      // Level: read from qa-num then look up badge inside card
+      const badge = card.querySelector('.level-badge');
+      const cardLevel = badge ? badge.classList[1] : '';
+      const matchLevel = activeLevel === 'all' || cardLevel === activeLevel;
+
+      if (matchSearch && matchTopic && matchLevel) {
         card.classList.remove('hidden');
         visible++;
       } else {
@@ -5042,19 +5255,41 @@ Key Design Decisions:
 
   searchBox.addEventListener('input', filterCards);
 
-  filterTabs.forEach(tab => {
+  // Topic tabs
+  topicTabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      filterTabs.forEach(t => t.classList.remove('active'));
+      topicTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       activeFilter = tab.dataset.filter;
       filterCards();
     });
   });
 
-  // Open all shortcut
+  // Level tabs
+  levelTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.classList.contains('active')) {
+        // Toggle off
+        tab.classList.remove('active');
+        activeLevel = 'all';
+      } else {
+        levelTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeLevel = tab.dataset.level;
+      }
+      filterCards();
+    });
+  });
+
+  // ESC to clear
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       searchBox.value = '';
+      activeFilter = 'all';
+      activeLevel  = 'all';
+      topicTabs.forEach(t => t.classList.remove('active'));
+      levelTabs.forEach(t => t.classList.remove('active'));
+      document.querySelector('.filter-tab[data-filter="all"]').classList.add('active');
       filterCards();
     }
   });
