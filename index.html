@@ -81,17 +81,40 @@ const LEVEL_LABELS = {
 
 const CLASS_COLORS = { 'java-color': '#f97316', 'spring-color': '#34d399' };
 
+// ── View Count (localStorage) ───────────────────────────
+const VC_KEY = 'java_qa_views';
+function loadCounts() {
+  try { return JSON.parse(localStorage.getItem(VC_KEY)) || {}; } catch { return {}; }
+}
+function saveCount(num, counts) {
+  counts[num] = (counts[num] || 0) + 1;
+  localStorage.setItem(VC_KEY, JSON.stringify(counts));
+  return counts[num];
+}
+
 function toggle(el) {
   const card = el.closest('.qa-card');
   const isOpen = card.classList.contains('open');
   // Close all open cards
   document.querySelectorAll('.qa-card.open').forEach(c => c.classList.remove('open'));
-  // If it was closed, open it; if it was already open, leave it closed (toggle off)
-  if (!isOpen) card.classList.add('open');
+  // If it was closed, open it and increment view count
+  if (!isOpen) {
+    card.classList.add('open');
+    const num = card.id.replace('q', '');
+    const counts = loadCounts();
+    const newCount = saveCount(num, counts);
+    // Live-update the badge in DOM
+    const badge = card.querySelector('.view-count');
+    if (badge) {
+      badge.textContent = `👁 ${newCount}`;
+      badge.style.display = 'inline-flex';
+    }
+  }
 }
 
 // ── Render ──────────────────────────────────────────────
 function renderQuestions(questions) {
+  const counts = loadCounts();  // load saved view counts from localStorage
   // Group: section → subsection → questions (preserve order)
   const secMap = new Map();
   const secOrder = [];
@@ -127,10 +150,15 @@ function renderQuestions(questions) {
       if (sub !== '__none__') html += `<div class="subsection-label">${sub}</div>`;
       for (const q of sec.subs.get(sub)) {
         const num = String(q.num).padStart(2, '0');
+        const viewCount = counts[q.num] || 0;
+        const viewBadge = viewCount > 0
+          ? `<span class="view-count" style="display:inline-flex">👁 ${viewCount}</span>`
+          : `<span class="view-count" style="display:none"></span>`;
         html += `<div class="qa-card" data-tags="${q.tags}" data-level="${q.level}" id="q${q.num}">
   <div class="qa-question" onclick="toggle(this)">
     <span class="qa-num">${num}</span>
     <span class="qa-q-text">${q.question}</span>
+    ${viewBadge}
     <span class="level-badge ${q.level}">${LEVEL_LABELS[q.level]}</span>
     <span class="qa-toggle">▾</span>
   </div>

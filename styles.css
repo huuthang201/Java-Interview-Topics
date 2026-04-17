@@ -345,6 +345,28 @@
   .tag.java { background: rgba(249,115,22,0.15); color: var(--accent); }
   .tag.spring { background: rgba(52,211,153,0.12); color: var(--green); }
 
+  /* View count badge */
+  .view-count {
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(100, 116, 139, 0.12);
+    color: var(--muted);
+    border: 1px solid rgba(100, 116, 139, 0.22);
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .qa-card:hover .view-count {
+    background: rgba(100, 116, 139, 0.2);
+    color: #94a3b8;
+  }
+
   #noResult {
     text-align: center;
     padding: 60px 20px;
