@@ -2,9 +2,12 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Tài liệu ôn tập phỏng vấn Java Core, Spring Boot, Kafka, Redis, Microservice, Database, DevOps với 168 câu hỏi kèm đáp án.">
-<title>Java & Spring Boot Interview Q&A — 168 câu hỏi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Tài liệu ôn tập phỏng vấn Java Core, Spring Boot, Kafka, Redis, Microservice, Database, System Design với 210 câu hỏi kèm đáp án chi tiết.">
+<meta name="theme-color" content="#0d0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Java & Spring Boot Interview Q&A — 210 câu hỏi</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -79,7 +82,12 @@ const LEVEL_LABELS = {
 const CLASS_COLORS = { 'java-color': '#f97316', 'spring-color': '#34d399' };
 
 function toggle(el) {
-  el.closest('.qa-card').classList.toggle('open');
+  const card = el.closest('.qa-card');
+  const isOpen = card.classList.contains('open');
+  // Close all open cards
+  document.querySelectorAll('.qa-card.open').forEach(c => c.classList.remove('open'));
+  // If it was closed, open it; if it was already open, leave it closed (toggle off)
+  if (!isOpen) card.classList.add('open');
 }
 
 // ── Render ──────────────────────────────────────────────
@@ -126,7 +134,7 @@ function renderQuestions(questions) {
     <span class="level-badge ${q.level}">${LEVEL_LABELS[q.level]}</span>
     <span class="qa-toggle">▾</span>
   </div>
-  <div class="qa-answer">${q.answerHtml}</div>
+  <div class="qa-answer"><div class="qa-answer-inner">${q.answerHtml}</div></div>
 </div>`;
       }
     }
