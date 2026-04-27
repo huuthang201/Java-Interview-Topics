@@ -71,6 +71,100 @@
   .badge.spring { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
   .badge.count { background: rgba(56,189,248,0.12); color: var(--accent2); border: 1px solid rgba(56,189,248,0.3); }
 
+  /* ── Import / Export Progress Buttons ──────────── */
+  .progress-actions {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    z-index: 200;
+  }
+  .progress-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  .progress-btn:hover {
+    color: var(--text);
+    border-color: var(--accent2);
+    background: rgba(56, 189, 248, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.12);
+  }
+  .progress-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  .progress-btn svg {
+    flex-shrink: 0;
+  }
+  /* Tooltip for progress buttons */
+  .progress-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    transform: none;
+    background: #1e2130;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    border: 1px solid var(--border);
+    z-index: 9999;
+  }
+  .progress-btn:hover::after {
+    opacity: 1;
+  }
+
+  /* ── Toast Notification ───────────────────────── */
+  .progress-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+  }
+  .progress-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .progress-toast.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.1);
+  }
+
   /* LAYOUT */
   .container { max-width: 1200px; margin: 0 auto; padding: 24px 24px 60px; }
 
@@ -178,10 +272,13 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     margin-bottom: 10px;
-    overflow: hidden;
     transition: border-color 0.2s;
+    position: relative;
   }
-  .qa-card:hover { border-color: #353a4d; }
+  .qa-card:hover {
+    z-index: 10;
+    border-color: #353a4d;
+  }
   .qa-card.hidden { display: none; }
 
   .qa-question {
@@ -367,6 +464,133 @@
     color: #94a3b8;
   }
 
+  /* ── Question Action Buttons ────────────────────── */
+  .qa-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .qa-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .qa-card:hover .qa-action-btn,
+  .qa-card.open .qa-action-btn {
+    opacity: 1;
+  }
+  .qa-action-btn:hover {
+    background: var(--surface2);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .qa-action-btn.btn-done:hover {
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.3);
+    color: var(--green);
+  }
+  .qa-action-btn.btn-skip:hover {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.25);
+    color: var(--yellow);
+  }
+  .qa-action-btn.btn-reset:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+  }
+
+  /* Tooltip for action buttons */
+  .qa-action-btn {
+    position: relative;
+  }
+  .qa-action-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e2130;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Sora', sans-serif;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    border: 1px solid var(--border);
+    z-index: 9999;
+  }
+  .qa-action-btn:hover::after {
+    opacity: 1;
+  }
+
+  /* ── Done State ─────────────────────────────────── */
+  .qa-card.done {
+    border-left: 3px solid var(--green);
+    background: rgba(52, 211, 153, 0.04);
+  }
+  .qa-card.done .qa-q-text {
+    color: var(--green);
+  }
+  .qa-card.done .qa-num {
+    color: var(--green);
+  }
+  .qa-card.done .qa-action-btn.btn-done {
+    opacity: 1;
+    color: var(--green);
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+
+  /* ── Skipped State ──────────────────────────────── */
+  .qa-card.skipped {
+    border-left: 3px solid rgba(251, 191, 36, 0.4);
+    opacity: 0.55;
+  }
+  .qa-card.skipped .qa-q-text {
+    text-decoration: line-through;
+    text-decoration-color: rgba(251, 191, 36, 0.5);
+    color: var(--muted);
+  }
+  .qa-card.skipped .qa-num {
+    text-decoration: line-through;
+    text-decoration-color: rgba(251, 191, 36, 0.5);
+  }
+  .qa-card.skipped .qa-action-btn.btn-skip {
+    opacity: 1;
+    color: var(--yellow);
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.25);
+  }
+  .qa-card.skipped:hover {
+    opacity: 0.8;
+  }
+
+  /* Reset button visible when view count exists */
+  .qa-action-btn.btn-reset {
+    opacity: 0;
+  }
+  .qa-card:hover .qa-action-btn.btn-reset.has-views,
+  .qa-card.open .qa-action-btn.btn-reset.has-views {
+    opacity: 1;
+  }
+
   #noResult {
     text-align: center;
     padding: 60px 20px;
@@ -434,6 +658,19 @@
     .qa-num { font-size: 12px; min-width: 22px; }
     .qa-q-text { font-size: 15px; line-height: 1.5; }
     .qa-toggle { font-size: 17px; min-width: 18px; }
+
+    /* Action buttons always visible on mobile */
+    .qa-action-btn {
+      opacity: 1 !important;
+      width: 30px;
+      height: 30px;
+    }
+    .qa-action-btn.btn-reset {
+      opacity: 0 !important;
+    }
+    .qa-action-btn.btn-reset.has-views {
+      opacity: 1 !important;
+    }
 
     /* Level badge — hide emoji on very small screens, keep text */
     .level-badge { font-size: 9px; padding: 2px 7px; }

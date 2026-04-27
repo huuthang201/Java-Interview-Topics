@@ -28,6 +28,17 @@
     <span class="badge" style="background:rgba(251,146,60,0.15);color:#fb923c;border:1px solid rgba(251,146,60,0.3)">🔥 System Design</span>
     <span class="badge count" id="totalBadge">168 câu hỏi</span>
   </div>
+  <div class="progress-actions">
+    <button class="progress-btn" id="btnExport" onclick="exportProgress()" data-tooltip="Export tiến trình ra file JSON">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="progress-btn" id="btnImport" onclick="document.getElementById('importFile').click()" data-tooltip="Import tiến trình từ file JSON">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Import
+    </button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importProgress(event)">
+  </div>
 </div>
 
 <div class="container">
@@ -96,7 +107,137 @@ function saveCount(num, counts) {
   return counts[num];
 }
 
+// ── Question Status (done/skipped) ──────────────────────
+const STATUS_KEY = 'java_qa_status';
+function loadStatus() {
+  try { return JSON.parse(localStorage.getItem(STATUS_KEY)) || {}; } catch { return {}; }
+}
+function saveStatus(statuses) {
+  localStorage.setItem(STATUS_KEY, JSON.stringify(statuses));
+}
+
+function markDone(num, event) {
+  event.stopPropagation();
+  const statuses = loadStatus();
+  const card = document.getElementById('q' + num);
+  if (statuses[num] === 'done') {
+    delete statuses[num];
+    card.classList.remove('done');
+  } else {
+    statuses[num] = 'done';
+    card.classList.remove('skipped');
+    card.classList.add('done');
+  }
+  saveStatus(statuses);
+}
+
+function markSkip(num, event) {
+  event.stopPropagation();
+  const statuses = loadStatus();
+  const card = document.getElementById('q' + num);
+  if (statuses[num] === 'skipped') {
+    delete statuses[num];
+    card.classList.remove('skipped');
+  } else {
+    statuses[num] = 'skipped';
+    card.classList.remove('done');
+    card.classList.add('skipped');
+    // Close the card if open
+    card.classList.remove('open');
+  }
+  saveStatus(statuses);
+}
+
+function resetViews(num, event) {
+  event.stopPropagation();
+  const counts = loadCounts();
+  delete counts[num];
+  localStorage.setItem(VC_KEY, JSON.stringify(counts));
+  // Update DOM
+  const card = document.getElementById('q' + num);
+  const badge = card.querySelector('.view-count');
+  if (badge) {
+    badge.textContent = '';
+    badge.style.display = 'none';
+  }
+  // Hide reset button
+  const resetBtn = card.querySelector('.btn-reset');
+  if (resetBtn) resetBtn.classList.remove('has-views');
+}
+
+// ── Import / Export Progress ────────────────────────────
+function exportProgress() {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    views: loadCounts(),
+    statuses: loadStatus()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `java-qa-progress_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Đã export tiến trình thành công!');
+}
+
+function importProgress(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.views && !data.statuses) {
+        showToast('❌ File JSON không hợp lệ!', true);
+        return;
+      }
+      // Merge imported data
+      if (data.views) {
+        const currentViews = loadCounts();
+        Object.assign(currentViews, data.views);
+        localStorage.setItem(VC_KEY, JSON.stringify(currentViews));
+      }
+      if (data.statuses) {
+        const currentStatuses = loadStatus();
+        Object.assign(currentStatuses, data.statuses);
+        localStorage.setItem(STATUS_KEY, JSON.stringify(currentStatuses));
+      }
+      showToast('✅ Import tiến trình thành công! Đang tải lại...');
+      setTimeout(() => location.reload(), 800);
+    } catch (err) {
+      showToast('❌ Lỗi đọc file: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+  // Reset input so the same file can be re-imported
+  event.target.value = '';
+}
+
+function showToast(message, isError = false) {
+  // Remove existing toast
+  const existing = document.querySelector('.progress-toast');
+  if (existing) existing.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'progress-toast' + (isError ? ' error' : '');
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  // Trigger animation
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
 function toggle(el) {
+  // Don't toggle if clicking action buttons
+  if (el.closest('.qa-actions')) return;
   const card = el.closest('.qa-card');
   const isOpen = card.classList.contains('open');
   // Close all open cards
@@ -113,12 +254,16 @@ function toggle(el) {
       badge.textContent = `👁 ${newCount}`;
       badge.style.display = 'inline-flex';
     }
+    // Show reset button since we now have views
+    const resetBtn = card.querySelector('.btn-reset');
+    if (resetBtn) resetBtn.classList.add('has-views');
   }
 }
 
 // ── Render ──────────────────────────────────────────────
 function renderQuestions(questions) {
-  const counts = loadCounts();  // load saved view counts from localStorage
+  const counts = loadCounts();
+  const statuses = loadStatus();
   // Group: section → subsection → questions (preserve order)
   const secMap = new Map();
   const secOrder = [];
@@ -155,14 +300,22 @@ function renderQuestions(questions) {
       for (const q of sec.subs.get(sub)) {
         const num = String(q.num).padStart(2, '0');
         const viewCount = counts[q.num] || 0;
+        const status = statuses[q.num] || '';
+        const statusClass = status ? ` ${status}` : '';
         const viewBadge = viewCount > 0
           ? `<span class="view-count" style="display:inline-flex">👁 ${viewCount}</span>`
           : `<span class="view-count" style="display:none"></span>`;
-        html += `<div class="qa-card" data-tags="${q.tags}" data-level="${q.level}" id="q${q.num}">
+        const hasViews = viewCount > 0 ? ' has-views' : '';
+        html += `<div class="qa-card${statusClass}" data-tags="${q.tags}" data-level="${q.level}" id="q${q.num}">
   <div class="qa-question" onclick="toggle(this)">
     <span class="qa-num">${num}</span>
     <span class="qa-q-text">${q.question}</span>
     ${viewBadge}
+    <span class="qa-actions">
+      <button class="qa-action-btn btn-done" data-tooltip="Done" onclick="markDone(${q.num}, event)">✓</button>
+      <button class="qa-action-btn btn-skip" data-tooltip="Skip" onclick="markSkip(${q.num}, event)">⏭</button>
+      <button class="qa-action-btn btn-reset${hasViews}" data-tooltip="Reset views" onclick="resetViews(${q.num}, event)">↺</button>
+    </span>
     <span class="level-badge ${q.level}">${LEVEL_LABELS[q.level]}</span>
     <span class="qa-toggle">▾</span>
   </div>
