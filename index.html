@@ -13,6 +13,32 @@
 </head>
 <body>
 
+<div class="floating-header" id="floatingHeader">
+  <div class="floating-header-inner">
+    <div class="floating-left">
+      <input type="text" id="floatingSearchBox" class="floating-search" placeholder="Tìm kiếm câu hỏi...">
+    </div>
+    <div class="floating-center">
+      <span class="floating-label">✓ <strong id="floatDone">0</strong></span>
+      <span class="floating-label skip">⏭ <strong id="floatSkip">0</strong></span>
+      <span class="floating-divider">│</span>
+      <span class="floating-label total">📋 <strong id="floatCompleted">0</strong>/<strong id="floatTotal">168</strong></span>
+      <div class="floating-progress"><div class="floating-progress-fill" id="floatProgressFill"></div></div>
+    </div>
+    <div class="floating-right">
+      <button class="floating-btn" onclick="exportProgress()" data-tooltip="Export">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button class="floating-btn" onclick="document.getElementById('importFile').click()" data-tooltip="Import">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <button class="floating-btn" onclick="toggleSettings(event)" data-tooltip="Settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="header">
   <h1>☕ <span class="java">Java Core</span> &amp; <span class="spring">Spring Boot</span> Interview</h1>
   <p>Câu hỏi phỏng vấn đầy đủ · Kafka · Redis · Microservice · Database · DevOps · System Design · ELK Stack</p>
@@ -28,6 +54,21 @@
     <span class="badge" style="background:rgba(251,146,60,0.15);color:#fb923c;border:1px solid rgba(251,146,60,0.3)">🔥 System Design</span>
     <span class="badge count" id="totalBadge">168 câu hỏi</span>
   </div>
+  <div class="completion-stats" id="completionStats">
+    <div class="stats-summary">
+      <span class="stats-item done-stat" id="statDone">✓ Done: <strong>0</strong></span>
+      <span class="stats-item skip-stat" id="statSkip">⏭ Skip: <strong>0</strong></span>
+      <span class="stats-divider">│</span>
+      <span class="stats-item total-stat" id="statTotal">📋 Tổng hoàn thành: <strong>0</strong> / <strong>168</strong></span>
+    </div>
+    <div class="stats-levels" id="statsLevels">
+      <button class="level-stat-btn lv-intern" id="levelBtnIntern" onclick="toggleLevelDetail('intern')">🔘 Intern: <strong>0/0</strong></button>
+      <button class="level-stat-btn lv-junior" id="levelBtnJunior" onclick="toggleLevelDetail('junior')">🟢 Junior: <strong>0/0</strong></button>
+      <button class="level-stat-btn lv-middle" id="levelBtnMiddle" onclick="toggleLevelDetail('middle')">🔵 Middle: <strong>0/0</strong></button>
+      <button class="level-stat-btn lv-senior" id="levelBtnSenior" onclick="toggleLevelDetail('senior')">🟠 Senior: <strong>0/0</strong></button>
+      <button class="level-stat-btn lv-expert" id="levelBtnExpert" onclick="toggleLevelDetail('expert')">🟣 Expert: <strong>0/0</strong></button>
+    </div>
+  </div>
   <div class="progress-actions">
     <button class="progress-btn" id="btnExport" onclick="exportProgress()" data-tooltip="Export tiến trình ra file JSON">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -38,7 +79,45 @@
       Import
     </button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importProgress(event)">
+    <button class="progress-btn" id="btnSettings" onclick="toggleSettings(event)" data-tooltip="Cài đặt hiển thị">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
   </div>
+</div>
+
+<!-- Settings Modal (fixed, works from both header and floating header) -->
+<div class="settings-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+<div class="settings-modal" id="settingsPopover">
+  <div class="settings-header">
+    <span>⚙️ Cài đặt hiển thị</span>
+    <button class="settings-close" onclick="closeSettings()">×</button>
+  </div>
+  <div class="settings-group">
+    <label class="settings-label">Cỡ chữ câu hỏi</label>
+    <div class="settings-row">
+      <div class="settings-presets">
+        <button class="preset-btn" onclick="setFontSize('question', 14)">S</button>
+        <button class="preset-btn" onclick="setFontSize('question', 17)">M</button>
+        <button class="preset-btn" onclick="setFontSize('question', 20)">L</button>
+      </div>
+      <input type="range" id="fontSizeQuestion" class="settings-slider" min="12" max="24" value="17" oninput="setFontSize('question', this.value)">
+      <span class="settings-value" id="fontSizeQuestionVal">17px</span>
+    </div>
+  </div>
+  <div class="settings-group">
+    <label class="settings-label">Cỡ chữ câu trả lời</label>
+    <div class="settings-row">
+      <div class="settings-presets">
+        <button class="preset-btn" onclick="setFontSize('answer', 14)">S</button>
+        <button class="preset-btn" onclick="setFontSize('answer', 16)">M</button>
+        <button class="preset-btn" onclick="setFontSize('answer', 19)">L</button>
+      </div>
+      <input type="range" id="fontSizeAnswer" class="settings-slider" min="12" max="24" value="16" oninput="setFontSize('answer', this.value)">
+      <span class="settings-value" id="fontSizeAnswerVal">16px</span>
+    </div>
+  </div>
+  <button class="settings-reset-btn" onclick="resetFontSettings()">Reset mặc định</button>
 </div>
 
 <div class="container">
@@ -94,7 +173,82 @@ const LEVEL_LABELS = {
   senior: '🟠 Senior', expert: '🟣 Expert'
 };
 
+let allQuestions = []; // Store globally for stats computation
+
 const CLASS_COLORS = { 'java-color': '#f97316', 'spring-color': '#34d399' };
+
+// ── Settings (localStorage) ─────────────────────────────
+const SETTINGS_KEY = 'java_qa_settings';
+const DEFAULT_SETTINGS = { questionFontSize: 17, answerFontSize: 16 };
+
+function loadSettings() {
+  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(SETTINGS_KEY)) }; } catch { return { ...DEFAULT_SETTINGS }; }
+}
+function saveSettings(settings) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function applyFontSettings() {
+  const s = loadSettings();
+  document.documentElement.style.setProperty('--q-font-size', s.questionFontSize + 'px');
+  document.documentElement.style.setProperty('--a-font-size', s.answerFontSize + 'px');
+  // Sync sliders & values
+  const qSlider = document.getElementById('fontSizeQuestion');
+  const aSlider = document.getElementById('fontSizeAnswer');
+  if (qSlider) { qSlider.value = s.questionFontSize; }
+  if (aSlider) { aSlider.value = s.answerFontSize; }
+  const qVal = document.getElementById('fontSizeQuestionVal');
+  const aVal = document.getElementById('fontSizeAnswerVal');
+  if (qVal) qVal.textContent = s.questionFontSize + 'px';
+  if (aVal) aVal.textContent = s.answerFontSize + 'px';
+  updatePresetBtns();
+}
+
+function setFontSize(type, value) {
+  const size = parseInt(value);
+  const s = loadSettings();
+  if (type === 'question') s.questionFontSize = size;
+  else s.answerFontSize = size;
+  saveSettings(s);
+  applyFontSettings();
+}
+
+function resetFontSettings() {
+  saveSettings(DEFAULT_SETTINGS);
+  applyFontSettings();
+  showToast('✅ Đã reset về mặc định!');
+}
+
+function updatePresetBtns() {
+  const s = loadSettings();
+  document.querySelectorAll('.settings-group').forEach((group, i) => {
+    const size = i === 0 ? s.questionFontSize : s.answerFontSize;
+    group.querySelectorAll('.preset-btn').forEach(btn => {
+      const btnSize = parseInt(btn.getAttribute('onclick').match(/\d+/g).pop());
+      btn.classList.toggle('active', btnSize === size);
+    });
+  });
+}
+
+function toggleSettings(event) {
+  event.stopPropagation();
+  const modal = document.getElementById('settingsPopover');
+  const backdrop = document.getElementById('settingsBackdrop');
+  const isOpen = modal.classList.contains('open');
+  if (isOpen) {
+    modal.classList.remove('open');
+    backdrop.classList.remove('open');
+  } else {
+    modal.classList.add('open');
+    backdrop.classList.add('open');
+  }
+}
+function closeSettings() {
+  document.getElementById('settingsPopover').classList.remove('open');
+  document.getElementById('settingsBackdrop').classList.remove('open');
+}
+// Apply on load immediately
+applyFontSettings();
 
 // ── View Count (localStorage) ───────────────────────────
 const VC_KEY = 'java_qa_views';
@@ -129,6 +283,7 @@ function markDone(num, event) {
     card.classList.add('done');
   }
   saveStatus(statuses);
+  updateCompletionStats();
 }
 
 function markSkip(num, event) {
@@ -146,6 +301,7 @@ function markSkip(num, event) {
     card.classList.remove('open');
   }
   saveStatus(statuses);
+  updateCompletionStats();
 }
 
 function resetViews(num, event) {
@@ -387,15 +543,118 @@ function initFilter() {
   });
 }
 
+// ── Completion Stats ────────────────────────────────────
+function updateCompletionStats() {
+  const statuses = loadStatus();
+  let doneCount = 0, skipCount = 0;
+  const levelTotals = { intern: 0, junior: 0, middle: 0, senior: 0, expert: 0 };
+  const levelDone = { intern: 0, junior: 0, middle: 0, senior: 0, expert: 0 };
+
+  allQuestions.forEach(q => {
+    const lv = q.level;
+    if (levelTotals[lv] !== undefined) levelTotals[lv]++;
+    const st = statuses[q.num];
+    if (st === 'done') {
+      doneCount++;
+      if (levelDone[lv] !== undefined) levelDone[lv]++;
+    } else if (st === 'skipped') {
+      skipCount++;
+    }
+  });
+
+  const total = allQuestions.length;
+  const completed = doneCount + skipCount;
+
+  document.getElementById('statDone').innerHTML = `✓ Done: <strong>${doneCount}</strong>`;
+  document.getElementById('statSkip').innerHTML = `⏭ Skip: <strong>${skipCount}</strong>`;
+  document.getElementById('statTotal').innerHTML = `📋 Tổng hoàn thành: <strong>${completed}</strong> / <strong>${total}</strong>`;
+
+  // Update level buttons
+  const levelEmojis = { intern: '🔘', junior: '🟢', middle: '🔵', senior: '🟠', expert: '🟣' };
+  const levelNames = { intern: 'Intern', junior: 'Junior', middle: 'Middle', senior: 'Senior', expert: 'Expert' };
+  for (const lv of Object.keys(levelTotals)) {
+    const btn = document.getElementById('levelBtn' + lv.charAt(0).toUpperCase() + lv.slice(1));
+    if (btn) {
+      const done = levelDone[lv];
+      const tot = levelTotals[lv];
+      const pct = tot > 0 ? Math.round((done / tot) * 100) : 0;
+      btn.innerHTML = `${levelEmojis[lv]} ${levelNames[lv]}: <strong>${done}/${tot}</strong> <span class="level-pct">(${pct}%)</span>`;
+      // Update progress fill
+      btn.style.setProperty('--progress', pct + '%');
+      if (done === tot && tot > 0) btn.classList.add('completed');
+      else btn.classList.remove('completed');
+    }
+  }
+
+  // Update progress bar
+  const progressPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const statsEl = document.getElementById('completionStats');
+  if (statsEl) {
+    statsEl.style.setProperty('--total-progress', progressPct + '%');
+  }
+
+  // Update floating stats bar
+  document.getElementById('floatDone').textContent = doneCount;
+  document.getElementById('floatSkip').textContent = skipCount;
+  document.getElementById('floatCompleted').textContent = completed;
+  document.getElementById('floatTotal').textContent = total;
+  document.getElementById('floatProgressFill').style.width = progressPct + '%';
+}
+
+function toggleLevelDetail(level) {
+  // Filter to show only that level
+  const tabs = document.querySelectorAll('.filter-tab[data-level]');
+  const targetTab = document.querySelector(`.filter-tab[data-level="${level}"]`);
+  if (targetTab) {
+    if (targetTab.classList.contains('active')) {
+      targetTab.classList.remove('active');
+      activeLevel = 'all';
+    } else {
+      tabs.forEach(t => t.classList.remove('active'));
+      targetTab.classList.add('active');
+      activeLevel = level;
+    }
+    filterCards();
+    // Scroll to content
+    document.getElementById('qa-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 // ── Boot ────────────────────────────────────────────────
 (async () => {
   try {
     const res = await fetch('questions.json');
     if (!res.ok) throw new Error('Cannot load questions.json');
     const data = await res.json();
+    allQuestions = data;
     document.getElementById('totalBadge').textContent = data.length + ' câu hỏi';
     renderQuestions(data);
     initFilter();
+    updateCompletionStats();
+    applyFontSettings();
+    // Show/hide floating header on scroll
+    const headerEl = document.querySelector('.header');
+    const floatingHeader = document.getElementById('floatingHeader');
+    const mainSearch = document.getElementById('searchBox');
+    const floatingSearch = document.getElementById('floatingSearchBox');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          floatingHeader.classList.remove('visible');
+        } else {
+          floatingHeader.classList.add('visible');
+        }
+      });
+    }, { threshold: 0, rootMargin: '0px 0px 0px 0px' });
+    observer.observe(headerEl);
+    // Sync floating search with main search
+    floatingSearch.addEventListener('input', () => {
+      mainSearch.value = floatingSearch.value;
+      mainSearch.dispatchEvent(new Event('input'));
+    });
+    mainSearch.addEventListener('input', () => {
+      floatingSearch.value = mainSearch.value;
+    });
   } catch (err) {
     document.getElementById('qa-content').innerHTML =
       '<div style="text-align:center;padding:60px;color:#ef4444">❌ Không load được questions.json.<br><small>' + err.message + '</small></div>';
