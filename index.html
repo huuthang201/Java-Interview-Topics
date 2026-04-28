@@ -327,7 +327,8 @@ function exportProgress() {
     exportedAt: new Date().toISOString(),
     version: 1,
     views: loadCounts(),
-    statuses: loadStatus()
+    statuses: loadStatus(),
+    settings: loadSettings()
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -348,7 +349,7 @@ function importProgress(event) {
   reader.onload = (e) => {
     try {
       const data = JSON.parse(e.target.result);
-      if (!data.views && !data.statuses) {
+      if (!data.views && !data.statuses && !data.settings) {
         showToast('❌ File JSON không hợp lệ!', true);
         return;
       }
@@ -362,6 +363,9 @@ function importProgress(event) {
         const currentStatuses = loadStatus();
         Object.assign(currentStatuses, data.statuses);
         localStorage.setItem(STATUS_KEY, JSON.stringify(currentStatuses));
+      }
+      if (data.settings) {
+        saveSettings({ ...DEFAULT_SETTINGS, ...data.settings });
       }
       showToast('✅ Import tiến trình thành công! Đang tải lại...');
       setTimeout(() => location.reload(), 800);
