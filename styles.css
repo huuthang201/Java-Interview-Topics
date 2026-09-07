@@ -431,7 +431,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.95);
-    width: 340px;
+    width: 440px;
     max-width: calc(100vw - 32px);
     margin: 0;
     background: var(--surface);
@@ -633,6 +633,98 @@
     padding: 14px 0;
     border-bottom: 1px solid var(--border);
     margin-bottom: 28px;
+    transition: padding 0.2s ease;
+  }
+
+  /* ── Sticky bar thu gọn khi cuộn ────────────────────
+     Ở đầu trang: ô search + 2 hàng tab (đầy đủ).
+     Khi cuộn: floating header đã có ô search riêng, nên bar này
+     bỏ ô search, dồn mọi tab về 1 hàng cuộn ngang → ~40px thay vì ~185px.
+     top = chiều cao floating header để 2 thanh không đè lên nhau.
+     ─────────────────────────────────────────────────── */
+  .level-tabs { margin-top: 6px; }
+  .level-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    align-self: center;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+  .filter-expand {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, transform 0.2s;
+  }
+  .filter-expand:hover { color: var(--text); border-color: var(--muted); }
+
+  .search-wrap.compact {
+    top: var(--fh-h, 55px);
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search-wrap.compact #searchBox { display: none; }
+  .search-wrap.compact .filter-rows {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* mờ dần ở mép phải để lộ ra là còn cuộn được */
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+  }
+  .search-wrap.compact .filter-rows::-webkit-scrollbar { display: none; }
+  .search-wrap.compact .filter-tabs {
+    flex-wrap: nowrap;
+    margin-top: 0;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .search-wrap.compact .filter-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .search-wrap.compact .level-tabs {
+    padding-left: 9px;
+    border-left: 1px solid var(--border);
+  }
+  .search-wrap.compact .filter-expand { display: inline-flex; }
+
+  /* Bấm mũi tên → bung lại đầy đủ mà vẫn dính dưới floating header */
+  .search-wrap.compact.expanded {
+    display: block;
+    padding: 10px 0;
+  }
+  .search-wrap.compact.expanded .filter-rows {
+    display: block;
+    overflow: visible;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .search-wrap.compact.expanded .filter-tabs { flex-wrap: wrap; }
+  .search-wrap.compact.expanded .level-tabs { padding-left: 0; border-left: none; }
+  .search-wrap.compact.expanded .filter-expand {
+    position: absolute;
+    right: 0; top: 10px;
+    transform: rotate(180deg);
   }
   .search-inner {
     display: flex;
@@ -870,6 +962,8 @@
     font-size: 14.5px;
     line-height: 1.75;
     overflow-x: auto;
+    overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+    overscroll-behavior-x: contain;
     white-space: pre;
     color: #c4cdd8;
   }
@@ -1113,6 +1207,8 @@
     .filter-tabs {
       flex-wrap: nowrap;
       overflow-x: auto;
+      overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+      overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
       scroll-snap-type: x mandatory;
       padding-bottom: 4px;
@@ -1170,6 +1266,8 @@
       padding: 12px 14px;
       border-radius: 8px;
       overflow-x: auto;
+      overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+      overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
     }
 
@@ -1178,6 +1276,8 @@
       font-size: 13px;
       display: block;
       overflow-x: auto;
+      overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+      overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
       white-space: nowrap;
     }
@@ -1236,3 +1336,533 @@
   .filter-tab.lv-middle.active  { background:var(--accent2); border-color:var(--accent2); color:#000; }
   .filter-tab.lv-senior.active  { background:var(--accent); border-color:var(--accent); color:#fff; }
   .filter-tab.lv-expert.active  { background:var(--accent3); border-color:var(--accent3); color:#fff; }
+  /* ═══════════════════════════════════════════════════
+     AI INTERVIEW COACH (chatbot)
+     ═══════════════════════════════════════════════════ */
+  .cb-fab {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(249,115,22,0.45);
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    color: #0d0f14;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 900;
+    box-shadow: 0 8px 26px rgba(249,115,22,0.35);
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), opacity .18s, box-shadow .18s;
+  }
+  .cb-fab:hover { transform: scale(1.08); box-shadow: 0 10px 32px rgba(249,115,22,0.5); }
+  .cb-fab.active { opacity: 0; pointer-events: none; transform: scale(.7); }
+
+  .cb-panel {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    width: 392px;
+    height: min(608px, calc(100vh - 44px));
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    z-index: 901;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    opacity: 0; visibility: hidden;
+    transform: translateY(14px) scale(.97);
+    transform-origin: bottom right;
+    transition: opacity .2s, transform .2s cubic-bezier(.34,1.3,.64,1), visibility .2s;
+  }
+  .cb-panel.open { opacity: 1; visibility: visible; transform: none; }
+
+  /* Header */
+  .cb-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .cb-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    flex-shrink: 0;
+  }
+  .cb-title { font-size: 13px; font-weight: 700; letter-spacing: -0.2px; }
+  .cb-model {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; font-weight: 600;
+    color: var(--muted);
+    background: rgba(100,116,139,0.14);
+    border: 1px solid var(--border);
+    padding: 1px 6px; border-radius: 20px;
+    margin-right: auto;
+    white-space: nowrap;
+  }
+  .cb-icon {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: transparent;
+    color: var(--muted); font-size: 16px; line-height: 1;
+    border-radius: 6px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .cb-icon:hover { background: rgba(148,163,184,0.12); color: var(--text); }
+
+  /* Body */
+  .cb-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;   /* cuộn hết chat thì dừng, không lôi cả trang theo */
+    padding: 14px 12px;
+    display: flex; flex-direction: column; gap: 10px;
+    font-size: 13.5px; line-height: 1.65;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .cb-body::-webkit-scrollbar { width: 6px; }
+  .cb-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .cb-msg { max-width: 92%; border-radius: 12px; padding: 8px 11px; overflow-wrap: anywhere; }
+  .cb-msg.user {
+    align-self: flex-end;
+    background: rgba(249,115,22,0.14);
+    border: 1px solid rgba(249,115,22,0.28);
+    border-bottom-right-radius: 4px;
+    white-space: pre-wrap;
+  }
+  .cb-msg.model {
+    align-self: flex-start;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    max-width: 100%;
+  }
+  .cb-msg p { margin: 0 0 6px; }
+  .cb-msg p:last-child { margin-bottom: 0; }
+  .cb-msg h4 { font-size: 13px; margin: 8px 0 4px; color: var(--accent2); }
+  .cb-msg ul, .cb-msg ol { margin: 4px 0 6px; padding-left: 18px; }
+  .cb-msg li { margin: 2px 0; }
+  .cb-msg code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 4px;
+    color: var(--green);
+  }
+  .cb-code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    margin: 6px 0;
+    overflow-x: auto;
+    overflow-y: hidden;            /* chặn nuốt wheel dọc của trang */
+    overscroll-behavior-x: contain;
+  }
+  .cb-code code {
+    background: none; border: none; padding: 0;
+    color: var(--text);
+    font-size: 11.5px; line-height: 1.6;
+    white-space: pre;
+  }
+  .cb-ref {
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(56,189,248,0.5);
+    cursor: pointer;
+  }
+  .cb-ref:hover { color: var(--accent); border-color: var(--accent); }
+  .cb-err { color: #ef4444; font-size: 12.5px; }
+
+  .cb-flash { animation: cbFlash 1.4s ease-out; }
+  @keyframes cbFlash {
+    0%, 100% { box-shadow: none; }
+    25%      { box-shadow: 0 0 0 2px var(--accent2), 0 0 24px rgba(56,189,248,0.4); }
+  }
+
+  /* Empty state */
+  .cb-empty {
+    margin: auto;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  .cb-empty-icon { font-size: 30px; margin-bottom: 8px; }
+  .cb-empty p { margin: 5px 0; }
+  .cb-empty strong { color: var(--text); }
+  .cb-empty a { color: var(--accent2); }
+  .cb-hint { font-size: 11px; opacity: .8; margin-top: 10px !important; }
+  .cb-link {
+    margin-top: 8px;
+    background: rgba(249,115,22,0.13);
+    border: 1px solid rgba(249,115,22,0.32);
+    color: var(--accent);
+    font-family: inherit; font-size: 12px; font-weight: 600;
+    padding: 6px 13px; border-radius: 8px; cursor: pointer;
+    transition: background .15s;
+  }
+  .cb-link:hover { background: rgba(249,115,22,0.24); }
+
+  .cb-kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; font-weight: 600;
+    background: rgba(148,163,184,0.14);
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    padding: 1px 5px; border-radius: 4px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* Typing dots */
+  .cb-typing { display: inline-flex; gap: 4px; padding: 3px 0; }
+  .cb-typing i {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--muted);
+    animation: cbBounce 1.2s infinite ease-in-out;
+  }
+  .cb-typing i:nth-child(2) { animation-delay: .16s; }
+  .cb-typing i:nth-child(3) { animation-delay: .32s; }
+  @keyframes cbBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+    30%           { transform: translateY(-4px); opacity: 1; }
+  }
+
+  /* Pinned question ("Hỏi AI về câu hỏi này") */
+  .cb-pin {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 12px;
+    border-top: 1px solid var(--border);
+    background: rgba(56,189,248,0.06);
+    font-size: 11.5px;
+    flex-shrink: 0;
+  }
+  .cb-pin[hidden] { display: none; }
+  .cb-pin-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 10.5px;
+    color: var(--accent2);
+    background: rgba(56,189,248,0.14);
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 1px 6px; border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .cb-pin-text {
+    flex: 1; min-width: 0;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cb-pin-x {
+    border: none; background: transparent; color: var(--muted);
+    font-size: 15px; line-height: 1; cursor: pointer;
+    padding: 0 2px; flex-shrink: 0;
+  }
+  .cb-pin-x:hover { color: #ef4444; }
+
+  /* Quick chips */
+  .cb-chips {
+    display: flex; flex-wrap: wrap; gap: 5px;
+    padding: 8px 12px 2px;
+    flex-shrink: 0;
+  }
+  .cb-chips[hidden] { display: none; }
+  .cb-chip {
+    font-family: inherit; font-size: 11px;
+    color: var(--accent2);
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.25);
+    padding: 4px 9px; border-radius: 20px;
+    cursor: pointer;
+    transition: background .15s, transform .12s;
+  }
+  .cb-chip:hover { background: rgba(56,189,248,0.2); transform: translateY(-1px); }
+
+  /* Input + ghost suggestion */
+  .cb-input {
+    display: flex; align-items: flex-end; gap: 8px;
+    padding: 9px 10px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .cb-ta-wrap {
+    position: relative;
+    flex: 1; min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color .15s;
+  }
+  .cb-ta-wrap:focus-within { border-color: var(--accent); }
+
+  /* Ghost và textarea phải khớp tuyệt đối về font/padding/line-height */
+  .cb-input textarea,
+  .cb-ghost {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 8px 11px;
+    border: none;
+    margin: 0;
+    letter-spacing: normal;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    box-sizing: border-box;
+  }
+  .cb-input textarea {
+    display: block;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    background: transparent;
+    color: var(--text);
+    resize: none;
+    max-height: 132px;
+    outline: none;
+  }
+  .cb-ghost {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    color: transparent;
+  }
+  .cb-ghost-typed { color: transparent; }
+  .cb-ghost-rest  { color: var(--muted); opacity: .72; }
+  .cb-ghost-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600;
+    color: var(--muted);
+    background: rgba(148,163,184,0.13);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0 4px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .cb-send {
+    width: 34px; height: 34px;
+    flex-shrink: 0;
+    border: none; border-radius: 9px;
+    background: var(--accent);
+    color: #0d0f14;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .15s, transform .12s;
+  }
+  .cb-send:hover { transform: scale(1.06); }
+  .cb-send.stop { background: #ef4444; color: #fff; }
+  .cb-send .cb-ico-stop { display: none; }
+  .cb-send.stop .cb-ico-send { display: none; }
+  .cb-send.stop .cb-ico-stop { display: block; }
+
+  /* Settings: Gemini group */
+  .gemini-row { display: flex; gap: 6px; align-items: center; }
+  .gemini-row input[type="password"], .gemini-row input[type="text"] {
+    flex: 1; min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .gemini-row input:focus { border-color: var(--accent); }
+  .gemini-row select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit; font-size: 12px;
+    padding: 7px 8px;
+    outline: none; cursor: pointer;
+  }
+  .gemini-add {
+    flex-shrink: 0;
+    font-family: inherit; font-size: 11.5px; font-weight: 600;
+    color: var(--accent);
+    background: rgba(249,115,22,0.12);
+    border: 1px solid rgba(249,115,22,0.32);
+    padding: 7px 11px; border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .gemini-add:hover { background: rgba(249,115,22,0.24); }
+
+  /* Danh sách key — xoay vòng khi hết quota */
+  .gemini-keys { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .gemini-keys:empty { display: none; }
+  .gk-empty {
+    font-size: 11px; color: var(--muted);
+    padding: 8px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .gk-row {
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px;
+  }
+  .gk-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+  .gk-row.live .gk-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .gk-row.wait .gk-dot { background: var(--yellow); }
+  .gk-row.bad  .gk-dot { background: #ef4444; }
+  .gk-row.busy .gk-dot { background: var(--accent2); animation: gkPulse 1s infinite; }
+  @keyframes gkPulse { 50% { opacity: .25; } }
+  .gk-row.bad { border-color: rgba(239,68,68,0.3); }
+  .gk-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .gk-note {
+    flex: 1; min-width: 0;
+    color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gk-row.bad .gk-note { color: #ef4444; }
+  .gk-row.wait .gk-note { color: var(--yellow); }
+  .gk-btn {
+    flex-shrink: 0;
+    font-family: inherit; font-size: 10px; font-weight: 600;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 6px;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .gk-btn:hover { color: var(--text); border-color: var(--muted); }
+  .gk-x { font-size: 13px; line-height: 1; padding: 2px 7px; }
+  .gk-x:hover { color: #ef4444; border-color: rgba(239,68,68,0.4); }
+
+  .gemini-eye {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    border-radius: 8px; cursor: pointer;
+    font-size: 13px;
+    transition: color .15s, border-color .15s;
+  }
+  .gemini-eye:hover { color: var(--text); border-color: var(--muted); }
+  .gemini-meta {
+    display: flex; align-items: center;
+    gap: 8px; margin-top: 7px;
+    font-size: 10.5px;
+  }
+  .gemini-test {
+    flex-shrink: 0;
+    font-family: inherit; font-size: 10.5px; font-weight: 600;
+    color: var(--accent2);
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 4px 10px; border-radius: 7px;
+    cursor: pointer;
+    transition: background .15s, opacity .15s;
+  }
+  .gemini-test:hover:not(:disabled) { background: rgba(56,189,248,0.22); }
+  .gemini-test:disabled { opacity: .55; cursor: default; }
+  .gemini-status {
+    flex: 1; min-width: 0;
+    color: var(--muted); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gemini-status.ok   { color: var(--green); }
+  .gemini-status.err  { color: #ef4444; }
+  .gemini-status.busy { color: var(--yellow); }
+  .gemini-getkey { flex-shrink: 0; }
+  .gemini-meta a { color: var(--accent2); text-decoration: none; }
+  .gemini-meta a:hover { text-decoration: underline; }
+
+  /* ── SPLIT MODE (mặc định) ─────────────────────────
+     Chia ngang 6 nội dung | 4 chat  →  60% | 40%, không lề
+     ──────────────────────────────────────────────── */
+  body.mode-split { padding-left: 0; padding-right: 40%; }
+  body.mode-split .floating-header { left: 0; right: 40%; }
+  body.mode-split .container { max-width: none; padding-right: 28px; }
+  body.mode-split .cb-fab { display: none; }
+  body.mode-split .cb-only-float { display: none; }
+  body.mode-split .cb-panel {
+    top: 0; right: 0; bottom: auto; left: auto;
+    width: 40%;
+    height: 100vh; height: 100dvh;
+    border-radius: 0;
+    border-top: none; border-bottom: none; border-right: none;
+    box-shadow: -1px 0 0 0 var(--border);
+    opacity: 1; visibility: visible; transform: none;
+  }
+
+  /* Nút đổi mode */
+  .mode-btn.active { color: var(--accent2); border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.12); }
+  .cb-inline-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px;
+    border: 1px solid var(--border); border-radius: 4px;
+    background: var(--surface2);
+    font-size: 10px;
+    vertical-align: -3px;
+  }
+  .qa-action-btn.btn-ask:hover {
+    background: rgba(56,189,248,0.14);
+    border-color: rgba(56,189,248,0.32);
+    color: var(--accent2);
+  }
+  /* Nút hỏi AI luôn hiện mờ để người dùng biết là có */
+  .qa-action-btn.btn-ask { opacity: .38; }
+  .qa-card:hover .qa-action-btn.btn-ask,
+  .qa-card.open .qa-action-btn.btn-ask { opacity: 1; }
+
+  /* Màn hình hẹp: split không còn hợp lý → quay về chat nổi */
+  @media (max-width: 1000px) {
+    body.mode-split { padding-left: 0; padding-right: 0; }
+    body.mode-split .floating-header { left: 0; right: 0; }
+    body.mode-split .container { max-width: 1200px; padding-right: 24px; }
+    body.mode-split .cb-fab { display: flex; }
+    body.mode-split .cb-only-float { display: flex; }
+    body.mode-split .cb-panel {
+      top: auto; right: 22px; bottom: 22px; left: auto;
+      width: 392px;
+      height: min(608px, calc(100vh - 44px));
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      opacity: 0; visibility: hidden;
+      transform: translateY(14px) scale(.97);
+    }
+    body.mode-split .cb-panel.open { opacity: 1; visibility: visible; transform: none; }
+  }
+
+  /* Mobile */
+  @media (max-width: 560px) {
+    .cb-fab { right: 14px; bottom: 14px; width: 44px; height: 44px; }
+    .cb-panel,
+    body.mode-split .cb-panel {
+      right: 0; bottom: 0; left: 0;
+      width: 100%;
+      height: min(82vh, 100dvh - 40px);
+      border-radius: 16px 16px 0 0;
+      border-left: none; border-right: none; border-bottom: none;
+    }
+    .cb-msg { max-width: 96%; }
+  }
