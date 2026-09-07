@@ -11,7 +11,6 @@ const KEY_MODEL = 'java_qa_gemini_model';
 const KEY_CHAT  = 'java_qa_chat_history';
 const KEY_MODE  = 'java_qa_ui_mode';      // 'split' (mặc định) | 'float'
 const KEY_SUGG  = 'java_qa_ai_suggestions';
-
 const DEFAULT_MODEL = 'gemini-3.5-flash';
 const SUGG_TTL = 6 * 60 * 60 * 1000;      // cache gợi ý AI 6 giờ
 
@@ -39,6 +38,8 @@ function saveKeys(arr) {
   } catch {}
 }
 const isReady  = x => !x.bad && (!x.cd || x.cd <= Date.now());
+// Mỗi key chạy model riêng; chưa chọn thì theo model mặc định trong Settings
+const keyModel = x => x.m || getModel();
 const hasKey   = () => loadKeys().length > 0;
 
 function fmtWait(ms) {
@@ -272,8 +273,8 @@ function thinkingFor(model) {
 }
 
 // Gọi bằng ĐÚNG 1 key. Model từ chối thinkingConfig thì thử lại 1 lần đã bỏ field.
-async function rawCall(k, method, payload, signal) {
-  const url = API(getModel(), method) + (method.startsWith('stream') ? '?alt=sse' : '');
+async function rawCall(k, model, method, payload, signal) {
+  const url = API(model, method) + (method.startsWith('stream') ? '?alt=sse' : '');
   const send = p => fetch(url, {
     method: 'POST', signal,
     headers: { 'content-type': 'application/json', 'x-goog-api-key': k },
@@ -295,7 +296,7 @@ function friendly(msg) { const e = new Error(msg); e.friendly = true; return e; 
 /* Xoay vòng key: hết quota (429) hoặc key hỏng thì tự nhảy sang key kế tiếp.
    Lỗi không liên quan tới key (payload sai, 5xx…) thì ném ra luôn,
    đổi key cũng vô ích mà còn đốt thêm request. */
-async function callGemini(method, body, signal) {
+async function callGemini(method, makeBody, signal) {
   const all = loadKeys();
   if (!all.length) throw friendly('Chưa có API key nào — mở Settings để thêm.');
   const usable = all.filter(isReady);
@@ -309,10 +310,14 @@ async function callGemini(method, body, signal) {
 
   let lastErr = null;
   for (const entry of usable) {
-    const res = await rawCall(entry.k, method, body, signal);   // abort/mạng → ném thẳng
+    // body dựng lại cho từng key vì thinkingConfig/token phụ thuộc model của key đó
+    const model = keyModel(entry);
+    const res = await rawCall(entry.k, model, method, makeBody(model), signal);
     if (res.ok) {
       if (entry.cd || entry.bad) patchKey(entry.k, { cd: null, bad: null });
       activeKey = entry.k;
+      activeModel = model;
+      if (el.cbModel) el.cbModel.textContent = modelLabel();
       paintStatusLine();
       return res;
     }
@@ -326,7 +331,7 @@ async function callGemini(method, body, signal) {
     }
     if (res.status === 403 || res.status === 404 ||
         (res.status === 400 && KEY_IS_BAD.test(msg))) {
-      patchKey(entry.k, { bad: explain(msg, getModel()) });
+      patchKey(entry.k, { bad: explain(msg, model) });
       continue;                                   // → key kế tiếp
     }
     throw lastErr;                                // lỗi không phải do key
@@ -334,25 +339,76 @@ async function callGemini(method, body, signal) {
   throw lastErr || new Error('Không key nào gọi được');
 }
 
+// Gemini phát text tăng dần qua SSE; gói thành generator cho send() dễ dùng
+async function* streamAnswer(req, signal) {
+  const res = await callGemini('streamGenerateContent', model => {
+    const think = thinkingFor(model);
+    return {
+      systemInstruction: { parts: [{ text: req.system }] },
+      contents: [
+        ...req.history.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
+        { role: 'user', parts: [{ text: req.prompt }] }
+      ],
+      generationConfig: {
+        temperature: 0.6,
+        maxOutputTokens: model.includes('pro') ? 4096 : 2048,
+        ...(think ? { thinkingConfig: think } : {})
+      }
+    };
+  }, signal);
+
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+    let out = '';
+    for (const line of lines) {
+      if (!line.startsWith('data:')) continue;
+      const payload = line.slice(5).trim();
+      if (!payload || payload === '[DONE]') continue;
+      try {
+        const chunk = JSON.parse(payload);
+        for (const p of chunk?.candidates?.[0]?.content?.parts || []) {
+          if (!p.thought) out += p.text || '';
+        }
+      } catch {}
+    }
+    if (out) yield out;
+  }
+}
+
 // ── Gợi ý sinh bởi AI ───────────────────────────────────
 const SUGG_SCHEMA = { type: 'ARRAY', items: { type: 'STRING' }, minItems: 4, maxItems: 5 };
 
+function parseSuggList(raw) {
+  let s = String(raw).trim().replace(/^```(?:json)?\s*|\s*```$/g, '').trim();
+  const a = s.indexOf('['), b = s.lastIndexOf(']');
+  if (a !== -1 && b > a) s = s.slice(a, b + 1);
+  const arr = JSON.parse(s);
+  return Array.isArray(arr) ? arr.map(x => String(x).trim()).filter(Boolean).slice(0, 5) : [];
+}
+
 async function askForSuggestions(instruction) {
-  const model = getModel();
-  const res = await callGemini('generateContent', {
-    contents: [{ role: 'user', parts: [{ text: instruction }] }],
-    generationConfig: {
-      temperature: 0.9,
-      maxOutputTokens: 512,
-      responseMimeType: 'application/json',
-      responseSchema: SUGG_SCHEMA,
-      ...(thinkingFor(model) ? { thinkingConfig: thinkingFor(model) } : {})
-    }
+  const res = await callGemini('generateContent', model => {
+    const think = thinkingFor(model);
+    return {
+      contents: [{ role: 'user', parts: [{ text: instruction }] }],
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: 512,
+        responseMimeType: 'application/json',
+        responseSchema: SUGG_SCHEMA,
+        ...(think ? { thinkingConfig: think } : {})
+      }
+    };
   });
   const data = await res.json();
-  const raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
-  const arr = JSON.parse(raw);
-  return Array.isArray(arr) ? arr.map(s => String(s).trim()).filter(Boolean).slice(0, 5) : [];
+  return parseSuggList(data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '[]');
 }
 
 function applySuggestions(list) {
@@ -733,49 +789,22 @@ async function send() {
   controller = new AbortController();
 
   const model = getModel();
-  const think = thinkingFor(model);
   const ctx = buildContext(text + ' ' + (askedAbout?.question || ''), askedAbout);
-  const history = messages.slice(-9, -1).map(m => ({ role: m.role, parts: [{ text: m.text }] }));
   const ask = askedAbout ? `Người dùng đang hỏi VỀ CÂU #${askedAbout.num} ("${askedAbout.question}").\nCÂU HỎI: ${text}` : 'CÂU HỎI: ' + text;
-  const body = {
-    systemInstruction: { parts: [{ text: SYSTEM() }] },
-    contents: [...history, { role: 'user', parts: [{ text: (ctx ? ctx + '\n\n---\n\n' : '') + ask }] }],
-    generationConfig: {
-      temperature: 0.6,
-      maxOutputTokens: model.includes('pro') ? 4096 : 2048,
-      ...(think ? { thinkingConfig: think } : {})
-    }
+  const req = {
+    system: SYSTEM(),
+    history: messages.slice(-9, -1),
+    prompt: (ctx ? ctx + '\n\n---\n\n' : '') + ask
   };
 
   let acc = '';
   try {
-    const res = await callGemini('streamGenerateContent', body, controller.signal);
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    let buf = '';
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buf += dec.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop();
-      for (const line of lines) {
-        if (!line.startsWith('data:')) continue;
-        const payload = line.slice(5).trim();
-        if (!payload || payload === '[DONE]') continue;
-        try {
-          const chunk = JSON.parse(payload);
-          for (const p of chunk?.candidates?.[0]?.content?.parts || []) {
-            if (!p.thought) acc += p.text || '';
-          }
-        } catch {}
-      }
-      if (acc) {
-        out.innerHTML = md(acc);
-        el.cbBody.scrollTop = el.cbBody.scrollHeight;
-      }
+    for await (const delta of streamAnswer(req, controller.signal)) {
+      acc += delta;
+      out.innerHTML = md(acc);
+      el.cbBody.scrollTop = el.cbBody.scrollHeight;
     }
-    if (!acc) throw new Error('Model không trả về nội dung (có thể bị chặn bởi safety filter).');
+    if (!acc.trim()) throw new Error('Model không trả về nội dung (có thể bị chặn bởi safety filter).');
     messages.push({ role: 'model', text: acc });
     saveHistory();
     // Gợi ý bám câu trả lời vừa xong: seed hiện ngay, AI thay thế khi về tới
@@ -799,9 +828,21 @@ async function send() {
 
 // ── Danh sách key trong Settings ────────────────────────
 let activeKey = '';          // key vừa gọi thành công gần nhất
+let activeModel = '';        // model của key đó
 let keyTicker = null;        // đếm ngược thời gian nghỉ
 
 const maskKey = k => k.length > 12 ? k.slice(0, 6) + '…' + k.slice(-4) : k.slice(0, 4) + '…';
+
+/* Dựng option cho dropdown từng dòng bằng cách nhân bản select mặc định trong
+   index.html — danh sách model chỉ khai báo một chỗ, thêm/bớt không phải sửa 2 nơi.
+   Bỏ tiền tố thứ tự ("6 · ") cho vừa bề ngang. */
+function modelOptions(selected) {
+  const src = document.getElementById('geminiModel');
+  if (!src) return '';
+  return [...src.querySelectorAll('option')].map(o =>
+    `<option value="${esc(o.value)}"${o.value === selected ? ' selected' : ''}>` +
+    `${esc(o.textContent.replace(/^\d+\s*·\s*/, ''))}</option>`).join('');
+}
 
 function paintKeys() {
   const box = document.getElementById('geminiKeys');
@@ -813,12 +854,13 @@ function paintKeys() {
         const wait = x.cd && x.cd > Date.now() ? x.cd - Date.now() : 0;
         const cls = x.bad ? 'bad' : wait ? 'wait' : (x === firstReady ? 'live' : 'idle');
         const note = x.bad ? x.bad
-          : wait ? 'hết quota · mở lại sau ' + fmtWait(wait)
+          : wait ? '⏳ còn ' + fmtWait(wait)
           : x.k === activeKey ? 'đang dùng'
-          : x === firstReady ? 'sẽ dùng trước' : 'dự phòng';
+          : x === firstReady ? 'ưu tiên' : 'dự phòng';
         return `<div class="gk-row ${cls}">
   <span class="gk-dot"></span>
   <code class="gk-id">${esc(maskKey(x.k))}</code>
+  <select class="gk-model" data-i="${i}" title="Model dùng cho key này">${modelOptions(keyModel(x))}</select>
   <span class="gk-note" title="${esc(note)}">${esc(note)}</span>
   <button class="gk-btn" data-act="test" data-i="${i}">Test</button>
   <button class="gk-btn gk-x" data-act="del" data-i="${i}" aria-label="Xoá key">&times;</button>
@@ -833,6 +875,9 @@ function paintKeys() {
   clearInterval(keyTicker);
   keyTicker = needTick && open ? setInterval(paintKeys, 1000) : null;
 }
+
+// Ưu tiên model của key vừa gọi thành công, chưa gọi lần nào thì lấy mặc định
+const modelLabel = () => (activeModel || getModel()).replace('gemini-', '').replace('-preview', '');
 
 function paintStatusLine() {
   const keys = loadKeys();
@@ -877,9 +922,19 @@ window.cbSettings = {
   },
   saveModel(v) {
     localStorage.setItem(KEY_MODEL, v);
-    if (el.cbModel) el.cbModel.textContent = v.replace('gemini-', '').replace('-preview', '');
-    // model đổi thì trạng thái quota/quyền cũ không còn đúng nữa
-    saveKeys(loadKeys().map(({ k }) => ({ k })));
+    // Chỉ reset cờ của key đang ăn theo mặc định; key đã chọn model riêng giữ nguyên
+    saveKeys(loadKeys().map(x => x.m ? x : { k: x.k }));
+    activeModel = '';
+    if (el.cbModel) el.cbModel.textContent = modelLabel();
+    paintKeys();
+  },
+  setKeyModel(i, model) {
+    const arr = loadKeys();
+    if (!arr[i]) return;
+    // model khác → quota/quyền cũ không còn đúng, xoá cờ để thử lại
+    arr[i] = { k: arr[i].k, ...(model ? { m: model } : {}) };
+    saveKeys(arr);
+    if (arr[i].k === activeKey) { activeModel = ''; if (el.cbModel) el.cbModel.textContent = modelLabel(); }
     paintKeys();
   },
   paintStatus() { paintStatusLine(); },
@@ -889,7 +944,7 @@ window.cbSettings = {
     const arr = loadKeys();
     const entry = arr[i];
     if (!entry) return;
-    const model = getModel();
+    const model = keyModel(entry);
     const row = document.querySelectorAll('#geminiKeys .gk-row')[i];
     const note = row?.querySelector('.gk-note');
     if (row) row.className = 'gk-row busy';
@@ -897,11 +952,15 @@ window.cbSettings = {
     const t0 = Date.now();
     try {
       const think = thinkingFor(model);
-      const res = await rawCall(entry.k, 'generateContent', {
+      const res = await rawCall(entry.k, model, 'generateContent', {
         contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
         generationConfig: { maxOutputTokens: 16, ...(think ? { thinkingConfig: think } : {}) }
       });
-      if (res.ok) { patchKey(entry.k, { cd: null, bad: null }); setStatus('ok', `✓ ${maskKey(entry.k)} OK · ${Date.now() - t0}ms`); return true; }
+      if (res.ok) {
+        patchKey(entry.k, { cd: null, bad: null });
+        setStatus('ok', `✓ ${maskKey(entry.k)} · ${model.replace('gemini-', '')} · ${Date.now() - t0}ms`);
+        return true;
+      }
       const err = await res.json().catch(() => null);
       const msg = err?.error?.message || `HTTP ${res.status}`;
       if (res.status === 429) patchKey(entry.k, { cd: Date.now() + quotaWait(err), bad: null });
@@ -921,7 +980,7 @@ window.cbSettings = {
     if (btn) { btn.disabled = true; btn.textContent = 'Đang test…'; }
     let ok = 0;
     for (let i = 0; i < keys.length; i++) if (await this.testOne(i)) ok++;
-    setStatus(ok ? 'ok' : 'err', `${ok ? '✓' : '✗'} ${ok}/${keys.length} key dùng được với ${getModel().replace('gemini-', '')}`);
+    setStatus(ok ? 'ok' : 'err', `${ok ? '✓' : '✗'} ${ok}/${keys.length} key dùng được`);
     if (btn) { btn.disabled = false; btn.textContent = 'Test tất cả'; }
   }
 };
@@ -954,13 +1013,19 @@ function explain(msg, model) {
 // ── Boot ────────────────────────────────────────────────
 function wireSettings() {
   const box = document.getElementById('geminiKeys');
-  if (box) box.addEventListener('click', e => {
-    const b = e.target.closest('.gk-btn');
-    if (!b) return;
-    const i = Number(b.dataset.i);
-    if (b.dataset.act === 'del') window.cbSettings.removeKey(i);
-    else window.cbSettings.testOne(i);
-  });
+  if (box) {
+    box.addEventListener('click', e => {
+      const b = e.target.closest('.gk-btn');
+      if (!b) return;
+      const i = Number(b.dataset.i);
+      if (b.dataset.act === 'del') window.cbSettings.removeKey(i);
+      else window.cbSettings.testOne(i);
+    });
+    box.addEventListener('change', e => {
+      const sel = e.target.closest('.gk-model');
+      if (sel) window.cbSettings.setKeyModel(Number(sel.dataset.i), sel.value);
+    });
+  }
   const input = document.getElementById('geminiKey');
   if (input) input.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); window.cbSettings.addKey(); }
@@ -973,7 +1038,7 @@ function boot() {
   loadHistory();
   buildIndex();
   applyMode(getMode());
-  el.cbModel.textContent = getModel().replace('gemini-', '').replace('-preview', '');
+  el.cbModel.textContent = modelLabel();
   window.cbSettings.init();
   render();
   onInput();

@@ -1735,6 +1735,22 @@
     color: var(--text);
     flex-shrink: 0;
   }
+  .gk-model {
+    flex-shrink: 0;
+    max-width: 108px;
+    font-family: inherit;
+    font-size: 10px;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 4px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .gk-model:hover, .gk-model:focus { border-color: var(--accent2); }
+
   .gk-note {
     flex: 1; min-width: 0;
     color: var(--muted);
@@ -1755,6 +1771,13 @@
   .gk-btn:hover { color: var(--text); border-color: var(--muted); }
   .gk-x { font-size: 13px; line-height: 1; padding: 2px 7px; }
   .gk-x:hover { color: #ef4444; border-color: rgba(239,68,68,0.4); }
+
+  .gemini-model-label {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
 
   .gemini-eye {
     width: 32px; height: 32px; flex-shrink: 0;

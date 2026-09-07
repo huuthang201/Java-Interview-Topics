@@ -137,13 +137,14 @@
   </div>
   <div class="settings-group">
     <label class="settings-label">🤖 AI Interview Coach — Gemini API key</label>
-    <div class="gemini-row">
-      <input type="password" id="geminiKey" placeholder="Dán API key rồi Enter (dán nhiều key cùng lúc cũng được)" autocomplete="off" spellcheck="false">
-      <button class="gemini-eye" onclick="const i=document.getElementById('geminiKey');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'">👁</button>
-      <button class="gemini-add" onclick="cbSettings.addKey()">+ Thêm</button>
-    </div>
+      <div class="gemini-row">
+        <input type="password" id="geminiKey" placeholder="Dán API key rồi Enter (dán nhiều key cùng lúc cũng được)" autocomplete="off" spellcheck="false">
+        <button class="gemini-eye" onclick="const i=document.getElementById('geminiKey');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'">👁</button>
+        <button class="gemini-add" onclick="cbSettings.addKey()">+ Thêm</button>
+      </div>
     <div class="gemini-keys" id="geminiKeys"></div>
     <div class="gemini-row" style="margin-top:8px">
+      <span class="gemini-model-label">Model mặc định</span>
       <select id="geminiModel" onchange="cbSettings.saveModel(this.value)">
         <optgroup label="◔ Nhẹ / rẻ nhất">
           <option value="gemini-2.5-flash-lite">1 · 2.5 Flash-Lite</option>
