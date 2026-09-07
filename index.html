@@ -533,6 +533,7 @@ function renderQuestions(questions) {
     ${viewBadge}
     <span class="qa-actions">
       <button class="qa-action-btn btn-ask" data-tooltip="Hỏi AI về câu này" onclick="cbAsk(${q.num}, event)">🤖</button>
+      <button class="qa-action-btn btn-mock" data-tooltip="Tự trả lời câu này, AI chấm điểm" onclick="cbInterview(${q.num}, event)">🎤</button>
       <button class="qa-action-btn btn-done" data-tooltip="Done" onclick="markDone(${q.num}, event)">✓</button>
       <button class="qa-action-btn btn-skip" data-tooltip="Skip" onclick="markSkip(${q.num}, event)">⏭</button>
       <button class="qa-action-btn btn-reset${hasViews}" data-tooltip="Reset views" onclick="resetViews(${q.num}, event)">↺</button>

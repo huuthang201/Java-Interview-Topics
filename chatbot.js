@@ -11,6 +11,7 @@ const KEY_MODEL = 'java_qa_gemini_model';
 const KEY_CHAT  = 'java_qa_chat_history';
 const KEY_MODE  = 'java_qa_ui_mode';      // 'split' (mặc định) | 'float'
 const KEY_SUGG  = 'java_qa_ai_suggestions';
+const KEY_SCORE = 'java_qa_interview_scores';  // điểm chấm phỏng vấn theo từng câu
 const DEFAULT_MODEL = 'gemini-3.5-flash';
 const SUGG_TTL = 6 * 60 * 60 * 1000;      // cache gợi ý AI 6 giờ
 
@@ -203,6 +204,26 @@ function buildContext(query, pinned) {
   ).join('\n\n---\n\n');
 }
 
+/* ── Sổ điểm phỏng vấn ──────────────────────────────────
+   { [num]: { best, last, count, at } } — chỉ để người học thấy mình tiến bộ,
+   không đồng bộ đi đâu cả. */
+function loadScores() {
+  try { return JSON.parse(localStorage.getItem(KEY_SCORE)) || {}; } catch { return {}; }
+}
+function saveScore(num, score) {
+  const all = loadScores();
+  const cur = all[num] || { best: 0, count: 0 };
+  const rec = {
+    best: Math.max(cur.best || 0, score),
+    last: score,
+    count: (cur.count || 0) + 1,
+    at: Date.now()
+  };
+  all[num] = rec;
+  try { localStorage.setItem(KEY_SCORE, JSON.stringify(all)); } catch {}
+  return { rec, isBest: score > (cur.best || 0) && (cur.count || 0) > 0 };
+}
+
 // ── Mini markdown ───────────────────────────────────────
 const PH = i => '%%CBBLOCK' + i + '%%';
 function md(src) {
@@ -242,6 +263,8 @@ let suggestions = [], sugIdx = 0;   // pool đang dùng cho ghost text
 let aiSuggestions = [];             // gợi ý do AI sinh theo ngữ cảnh
 let pinned = null;                  // câu hỏi đang "Hỏi AI về câu này"
 let chips = [];
+let interviewMode = false;          // true → mọi thứ gõ vào là câu TRẢ LỜI, AI chấm điểm
+let gradedOnce = false;             // đã chấm ít nhất 1 lần cho câu đang ghim
 
 // Fallback khi AI chưa load được
 const FALLBACK_SUGG = [
@@ -258,6 +281,19 @@ const FALLBACK_CHIPS = [
   'Nhà tuyển dụng sẽ đào sâu thế nào?',
   'Câu hỏi bẫy thường gặp?',
   'So sánh với giải pháp thay thế'
+];
+
+/* Chip của chế độ phỏng vấn. ask:1 = câu HỎI (bấm vào sẽ tự thoát chế độ chấm
+   điểm), không có ask = nội dung gửi đi như một câu TRẢ LỜI. */
+const INTERVIEW_CHIPS = [
+  { t: 'Mình chưa biết câu này' },
+  { t: 'Gợi ý dàn ý trước đã', ask: 1 }
+];
+const INTERVIEW_CHIPS_AFTER = [
+  { t: 'Giải thích chỗ mình sai', ask: 1 },
+  { t: 'Đáp án mẫu đầy đủ hơn', ask: 1 },
+  { t: 'Interviewer vặn tiếp gì?', ask: 1 },
+  { t: 'Câu tương tự để luyện thêm', ask: 1 }
 ];
 
 const loadHistory = () => { try { messages = JSON.parse(localStorage.getItem(KEY_CHAT)) || []; } catch { messages = []; } };
@@ -393,22 +429,27 @@ function parseSuggList(raw) {
   return Array.isArray(arr) ? arr.map(x => String(x).trim()).filter(Boolean).slice(0, 5) : [];
 }
 
-async function askForSuggestions(instruction) {
+// Gọi 1 lượt non-stream, ép model trả JSON đúng schema
+async function askJson(instruction, schema, opt = {}) {
   const res = await callGemini('generateContent', model => {
     const think = thinkingFor(model);
     return {
       contents: [{ role: 'user', parts: [{ text: instruction }] }],
       generationConfig: {
-        temperature: 0.9,
-        maxOutputTokens: 512,
+        temperature: opt.temperature ?? 0.9,
+        maxOutputTokens: opt.maxOutputTokens ?? 512,
         responseMimeType: 'application/json',
-        responseSchema: SUGG_SCHEMA,
+        responseSchema: schema,
         ...(think ? { thinkingConfig: think } : {})
       }
     };
-  });
+  }, opt.signal);
   const data = await res.json();
-  return parseSuggList(data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '[]');
+  return data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+}
+
+async function askForSuggestions(instruction) {
+  return parseSuggList(await askJson(instruction, SUGG_SCHEMA) || '[]');
 }
 
 function applySuggestions(list) {
@@ -500,6 +541,7 @@ async function refreshSuggestions() {
 /* Chip cho câu đang ghim. Trước khi hỏi: dựa trên đáp án có sẵn trong bộ đề.
    Sau khi model trả lời: chuyển thành follow-up của chính câu trả lời đó. */
 async function refreshChips(entry, lastAnswer) {
+  if (interviewMode) return;
   if (!lastAnswer) { chips = FALLBACK_CHIPS.slice(); paintChips(); }
   if (!hasKey()) return;
   const prompt = lastAnswer
@@ -519,8 +561,164 @@ Yêu cầu: tiếng Việt, mỗi lời nhắc tối đa 34 ký tự, dạng m�
 Trả về JSON array các string.`;
   try {
     const items = await askForSuggestions(prompt);
-    if (items.length && pinned === entry) { chips = items; paintChips(); }
+    if (items.length && pinned === entry && !interviewMode) { chips = items; paintChips(); }
   } catch {}
+}
+
+/* ── Chế độ phỏng vấn: người học tự trả lời, AI chấm điểm ──
+   Bốn tiêu chí cộng lại đúng 10 điểm, tên và điểm tối đa cố định ở đây để
+   thanh bar vẽ được kể cả khi model trả về thiếu. */
+const RUBRIC = [
+  { name: 'Độ chính xác',       max: 4 },
+  { name: 'Độ đầy đủ',          max: 3 },
+  { name: 'Chiều sâu thực chiến', max: 2 },
+  { name: 'Cách trình bày',     max: 1 }
+];
+
+const GRADE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    score: { type: 'NUMBER' },
+    verdict: { type: 'STRING' },
+    level_estimate: { type: 'STRING' },
+    breakdown: {
+      type: 'ARRAY', minItems: 4, maxItems: 4,
+      items: {
+        type: 'OBJECT',
+        properties: { name: { type: 'STRING' }, score: { type: 'NUMBER' }, max: { type: 'NUMBER' }, note: { type: 'STRING' } },
+        required: ['name', 'score', 'max', 'note'],
+        propertyOrdering: ['name', 'score', 'max', 'note']
+      }
+    },
+    strengths: { type: 'ARRAY', items: { type: 'STRING' }, maxItems: 4 },
+    gaps: { type: 'ARRAY', items: { type: 'STRING' }, maxItems: 5 },
+    missing_keywords: { type: 'ARRAY', items: { type: 'STRING' }, maxItems: 8 },
+    model_answer: { type: 'STRING' },
+    followup: { type: 'STRING' }
+  },
+  required: ['score', 'verdict', 'breakdown', 'gaps', 'model_answer', 'followup'],
+  propertyOrdering: ['score', 'verdict', 'level_estimate', 'breakdown', 'strengths', 'gaps', 'missing_keywords', 'model_answer', 'followup']
+};
+
+function parseJsonLoose(raw) {
+  let t = String(raw).trim().replace(/^```(?:json)?\s*|\s*```$/g, '').trim();
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a !== -1 && b > a) t = t.slice(a, b + 1);
+  return JSON.parse(t);
+}
+
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, Number(n) || 0));
+const round5 = n => Math.round(n * 2) / 2;
+
+// Model đôi khi đổi tên tiêu chí hoặc trả sai điểm tối đa → nắn lại theo RUBRIC
+function normalizeGrade(g) {
+  const src = Array.isArray(g.breakdown) ? g.breakdown : [];
+  const breakdown = RUBRIC.map((r, i) => {
+    const f = src.find(x => deaccent(String(x?.name || '')).includes(deaccent(r.name).slice(0, 8))) || src[i] || {};
+    return { name: r.name, max: r.max, score: round5(clamp(f.score, 0, r.max)), note: String(f.note || '').trim() };
+  });
+  const sum = round5(breakdown.reduce((a, x) => a + x.score, 0));
+  const raw = clamp(g.score, 0, 10);
+  // Lệch nhiều giữa tổng tiêu chí và điểm model tự chấm thì tin phần tiêu chí
+  const score = Math.abs(raw - sum) > 1.5 ? sum : round5(raw);
+  const arr = k => (Array.isArray(g[k]) ? g[k] : []).map(x => String(x).trim()).filter(Boolean);
+  return {
+    score, breakdown,
+    verdict: String(g.verdict || '').trim(),
+    level_estimate: String(g.level_estimate || '').trim(),
+    strengths: arr('strengths').slice(0, 4),
+    gaps: arr('gaps').slice(0, 5),
+    missing_keywords: arr('missing_keywords').slice(0, 8),
+    model_answer: String(g.model_answer || '').trim(),
+    followup: String(g.followup || '').trim()
+  };
+}
+
+async function gradeAnswer(entry, userAnswer, signal) {
+  const where = entry.section + (entry.subsection ? ' > ' + entry.subsection : '');
+  const raw = await askJson(`Bạn là interviewer backend Java/Spring Boot nhiều năm kinh nghiệm, đang phỏng vấn ứng viên tại Việt Nam.
+
+CÂU HỎI (#${entry.num} · ${where} · level ${entry.level}):
+${entry.question}
+
+ĐÁP ÁN THAM CHIẾU (chuẩn của bộ đề, dùng làm mốc chấm — không đọc lại nguyên văn cho ứng viên):
+${answerText(entry).slice(0, 3000)}
+
+CÂU TRẢ LỜI CỦA ỨNG VIÊN:
+"""
+${String(userAnswer).slice(0, 4000)}
+"""
+
+Chấm nghiêm túc như phỏng vấn thật, thang 10, chia đúng 4 tiêu chí sau (giữ nguyên tên và điểm tối đa):
+${RUBRIC.map(r => `- "${r.name}" tối đa ${r.max}`).join('\n')}
+"score" = tổng 4 tiêu chí, làm tròn 0.5.
+
+Quy tắc chấm:
+- Sai kiến thức thì trừ mạnh "Độ chính xác" và chỉ rõ chỗ sai trong "gaps".
+- Ứng viên nói không biết / trả lời trống rỗng → score 0, nói thẳng, và vẫn đưa "model_answer".
+- Diễn đạt khác đáp án tham chiếu nhưng đúng ý thì vẫn tính đúng; đừng bắt bẻ câu chữ.
+- Đừng nới tay: mức ${entry.level} thì đòi hỏi đúng mức ${entry.level}.
+- "note" mỗi tiêu chí: 1 câu ngắn giải thích vì sao trừ điểm.
+- "level_estimate": câu trả lời này ở tầm nào — Fresher / Junior / Middle / Senior.
+- "strengths": ý ứng viên nói đúng, trích lại chính chữ họ dùng.
+- "gaps": ý thiếu hoặc sai, mỗi ý 1 dòng ngắn.
+- "missing_keywords": thuật ngữ interviewer mong nghe mà ứng viên chưa nhắc tới.
+- "model_answer": dàn ý đáp án chuẩn khoảng 120 từ, gạch đầu dòng markdown, nhấn vào đúng phần ứng viên còn thiếu.
+- "followup": 1 câu interviewer sẽ vặn tiếp ngay sau câu trả lời này.
+
+Tiếng Việt, thuật ngữ kỹ thuật giữ nguyên tiếng Anh. "verdict" tối đa 25 từ.`,
+    GRADE_SCHEMA, { temperature: 0.35, maxOutputTokens: 2048, signal });
+  return normalizeGrade(parseJsonLoose(raw));
+}
+
+const scoreTier = n => n >= 8 ? 'good' : n >= 5 ? 'mid' : 'bad';
+const fmtScore = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
+
+function gradeHtml(entry, g, meta) {
+  const bars = g.breakdown.map(b => `
+    <div class="cb-bar" title="${esc(b.note)}">
+      <span class="cb-bar-name">${esc(b.name)}</span>
+      <span class="cb-bar-track"><i class="${scoreTier(b.score / b.max * 10)}" style="width:${Math.round(b.score / b.max * 100)}%"></i></span>
+      <span class="cb-bar-val">${fmtScore(b.score)}/${b.max}</span>
+    </div>`).join('');
+  const notes = g.breakdown.filter(b => b.note).map(b =>
+    `<li><b>${esc(b.name)}:</b> ${esc(b.note)}</li>`).join('');
+  const list = (title, cls, items) => items.length
+    ? `<div class="cb-gsec ${cls}"><h5>${title}</h5><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+
+  return `<div class="cb-grade">
+  <div class="cb-grade-top">
+    <div class="cb-score ${scoreTier(g.score)}"><b>${fmtScore(g.score)}</b><span>/10</span></div>
+    <div class="cb-grade-meta">
+      <div class="cb-grade-q">#${entry.num} · ${esc(entry.question)}</div>
+      ${g.verdict ? `<div class="cb-grade-verdict">${esc(g.verdict)}</div>` : ''}
+      <div class="cb-grade-tags">
+        ${g.level_estimate ? `<span class="cb-gtag">Tầm ${esc(g.level_estimate)}</span>` : ''}
+        <span class="cb-gtag">Lần ${meta.rec.count}</span>
+        <span class="cb-gtag">Cao nhất ${fmtScore(meta.rec.best)}</span>
+        ${meta.isBest ? '<span class="cb-gtag best">🎉 Kỷ lục mới</span>' : ''}
+      </div>
+    </div>
+  </div>
+  <div class="cb-bars">${bars}</div>
+  ${notes ? `<details class="cb-gdet"><summary>Vì sao trừ điểm</summary><ul>${notes}</ul></details>` : ''}
+  ${list('✅ Đã nói đúng', 'ok', g.strengths)}
+  ${list('⚠️ Thiếu / chưa chuẩn', 'bad', g.gaps)}
+  ${g.missing_keywords.length ? `<div class="cb-kws"><span>Từ khoá còn thiếu</span>${g.missing_keywords.map(k => `<code>${esc(k)}</code>`).join('')}</div>` : ''}
+  ${g.model_answer ? `<details class="cb-gdet ans" open><summary>📘 Đáp án mẫu</summary>${md(g.model_answer)}</details>` : ''}
+  ${g.followup ? `<div class="cb-gfu">👉 Interviewer sẽ hỏi tiếp: ${esc(g.followup)}</div>` : ''}
+</div>`;
+}
+
+// Bản chữ để đưa vào history gửi lên API (và làm fallback nếu mất object grade)
+function gradeText(entry, g) {
+  return [
+    `**Kết quả chấm câu #${entry.num}: ${fmtScore(g.score)}/10** — ${g.verdict}`,
+    g.breakdown.map(b => `- ${b.name}: ${fmtScore(b.score)}/${b.max}${b.note ? ' — ' + b.note : ''}`).join('\n'),
+    g.gaps.length ? '**Thiếu / chưa chuẩn:**\n' + g.gaps.map(x => '- ' + x).join('\n') : '',
+    g.model_answer ? '**Đáp án mẫu:**\n' + g.model_answer : '',
+    g.followup ? '👉 Follow-up: ' + g.followup : ''
+  ].filter(Boolean).join('\n\n');
 }
 
 // ── DOM ─────────────────────────────────────────────────
@@ -543,6 +741,8 @@ function mount() {
   <div class="cb-pin" id="cbPin" hidden>
     <span class="cb-pin-num" id="cbPinNum"></span>
     <span class="cb-pin-text" id="cbPinText"></span>
+    <span class="cb-pin-best" id="cbPinBest" hidden></span>
+    <button class="cb-pin-mode" id="cbPinMode" data-tooltip="Tự trả lời câu này, AI chấm điểm">&#127908; Trả lời &amp; chấm điểm</button>
     <button class="cb-pin-x" id="cbPinX" aria-label="Bỏ ghim">&times;</button>
   </div>
   <div class="cb-chips" id="cbChips" hidden></div>
@@ -559,7 +759,7 @@ function mount() {
 </aside>`;
   document.body.appendChild(root);
   for (const id of ['cbFab', 'cbPanel', 'cbBody', 'cbText', 'cbGhost', 'cbSend', 'cbClear', 'cbClose',
-                    'cbModel', 'cbPin', 'cbPinNum', 'cbPinText', 'cbPinX', 'cbChips'])
+                    'cbModel', 'cbPin', 'cbPinNum', 'cbPinText', 'cbPinX', 'cbPinBest', 'cbPinMode', 'cbChips'])
     el[id] = document.getElementById(id);
 
   el.cbFab.onclick = () => toggle();
@@ -567,13 +767,19 @@ function mount() {
   el.cbClear.onclick = () => { messages = []; saveHistory(); unpin(); render(); refreshSuggestions(); };
   el.cbSend.onclick = () => busy ? abort() : send();
   el.cbPinX.onclick = unpin;
+  el.cbPinMode.onclick = () => setInterviewMode(!interviewMode);
   el.cbText.addEventListener('input', onInput);
   el.cbText.addEventListener('keydown', onKeydown);
   el.cbText.addEventListener('scroll', () => { el.cbGhost.scrollTop = el.cbText.scrollTop; });
   el.cbBody.addEventListener('click', onRefClick);
   el.cbChips.addEventListener('click', e => {
     const b = e.target.closest('.cb-chip');
-    if (b) { el.cbText.value = b.textContent; onInput(); send(); }
+    if (!b) return;
+    const text = b.textContent;
+    if (b.dataset.ask === '1' && interviewMode) setInterviewMode(false);
+    el.cbText.value = text;
+    onInput();
+    send();
   });
 
   document.addEventListener('keydown', e => {
@@ -637,28 +843,73 @@ window.cbAsk = (num, event) => {
   if (event) event.stopPropagation();
   const entry = byNum(num);
   if (!entry) return;
+  const changed = pinned !== entry;
   pinned = entry;
+  if (changed) gradedOnce = false;
   el.cbPin.hidden = false;
   el.cbPinNum.textContent = '#' + entry.num;
   el.cbPinText.textContent = entry.question;
+  paintPinBest();
+  setInterviewMode(false);
   focusChat();
-  onInput();
   refreshChips(entry);
+};
+
+// Vào thẳng chế độ phỏng vấn từ nút 🎤 trên thẻ câu hỏi
+window.cbInterview = (num, event) => {
+  window.cbAsk(num, event);
+  if (pinned && pinned.num === Number(num)) setInterviewMode(true);
 };
 
 function unpin() {
   pinned = null;
   chips = [];
+  gradedOnce = false;
   el.cbPin.hidden = true;
+  setInterviewMode(false);
   paintChips();
   onInput();
 }
+
+/* Bật/tắt chế độ phỏng vấn. Khi bật, MỌI thứ gõ trong ô nhập được hiểu là câu
+   trả lời của ứng viên nên phải tắt ghost gợi ý và đổi hẳn bộ chip — chip dạng
+   "hỏi" mà bấm nhầm lúc này thì sẽ bị chấm điểm như một câu trả lời. */
+function setInterviewMode(on) {
+  interviewMode = !!on && !!pinned;
+  el.cbPinMode.classList.toggle('on', interviewMode);
+  el.cbPinMode.innerHTML = interviewMode ? '&#127908; Đang phỏng vấn' : '&#127908; Trả lời &amp; chấm điểm';
+  el.cbPinMode.setAttribute('data-tooltip',
+    interviewMode ? 'Quay lại hỏi đáp bình thường' : 'Tự trả lời câu này, AI chấm điểm');
+  el.cbPin.classList.toggle('interview', interviewMode);
+  el.cbPanel.classList.toggle('cb-interview', interviewMode);
+  el.cbText.placeholder = interviewMode && pinned
+    ? `Trả lời câu #${pinned.num} như đang phỏng vấn…` : '';
+  if (interviewMode) {
+    chips = (gradedOnce ? INTERVIEW_CHIPS_AFTER : INTERVIEW_CHIPS).slice();
+    paintChips();
+  } else if (pinned) {
+    chips = FALLBACK_CHIPS.slice();
+    paintChips();
+  }
+  onInput();
+}
+
+function paintPinBest() {
+  const r = pinned ? loadScores()[pinned.num] : null;
+  el.cbPinBest.hidden = !r;
+  if (!r) return;
+  el.cbPinBest.textContent = '🏆 ' + fmtScore(r.best);
+  el.cbPinBest.title = `Cao nhất ${fmtScore(r.best)}/10 · gần nhất ${fmtScore(r.last)}/10 · đã trả lời ${r.count} lần`;
+}
+
+const chipText = c => typeof c === 'string' ? c : c.t;
+const chipAsk  = c => typeof c === 'object' && !!c.ask;
 
 function paintChips() {
   const show = pinned && chips.length;
   el.cbChips.hidden = !show;
   el.cbChips.innerHTML = show
-    ? chips.map(c => `<button class="cb-chip">${esc(c)}</button>`).join('')
+    ? chips.map(c => `<button class="cb-chip${chipAsk(c) ? ' ask' : ''}"${chipAsk(c) ? ' data-ask="1"' : ''}>${esc(chipText(c))}</button>`).join('')
     : '';
 }
 
@@ -668,7 +919,8 @@ function pool() {
   if (!pinned) return ai;
   // Chưa hỏi gì: ghost mời các chip của câu đang ghim.
   // Đã có câu trả lời: ghost ưu tiên follow-up (chip vốn đã hiện thành nút rồi).
-  return messages.length ? [...ai, ...chips] : [...chips, ...ai];
+  const cs = chips.map(chipText);
+  return messages.length ? [...ai, ...cs] : [...cs, ...ai];
 }
 
 function onInput() {
@@ -677,6 +929,9 @@ function onInput() {
   t.style.height = Math.min(t.scrollHeight, 132) + 'px';
   const raw = t.value;
   const v = raw.trim();
+
+  // Đang phỏng vấn: người dùng viết đáp án của chính mình, gợi ý sẵn chỉ làm nhiễu
+  if (interviewMode) { suggestions = []; paintGhost(); return; }
 
   if (!v) {
     suggestions = pool();
@@ -736,7 +991,7 @@ function render() {
            <div class="cb-empty-icon">&#129302;</div>
            <p>Hỏi bất kỳ điều gì về <strong>${total} câu hỏi phỏng vấn</strong> trong trang.</p>
            <p class="cb-hint">Gợi ý hiện mờ ngay trong ô nhập — <kbd class="cb-kbd">Tab</kbd> chèn · <kbd class="cb-kbd">&uarr;&darr;</kbd> đổi gợi ý · <kbd class="cb-kbd">Enter</kbd> gửi</p>
-           <p class="cb-hint">Bấm <span class="cb-inline-btn">&#129302;</span> trên mỗi câu hỏi để hỏi riêng câu đó.</p>
+           <p class="cb-hint">Bấm <span class="cb-inline-btn">&#129302;</span> trên mỗi câu hỏi để hỏi riêng câu đó, hoặc <span class="cb-inline-btn">&#127908;</span> để tự trả lời và được chấm điểm.</p>
          </div>`
       : `<div class="cb-empty">
            <div class="cb-empty-icon">&#128273;</div>
@@ -748,8 +1003,11 @@ function render() {
     if (go) go.onclick = () => { if (getMode() === 'float') toggle(false); window.toggleSettings(new Event('click')); };
     return;
   }
-  el.cbBody.innerHTML = messages.map(m =>
-    `<div class="cb-msg ${m.role}">${m.role === 'user' ? esc(m.text) : md(m.text)}</div>`).join('');
+  el.cbBody.innerHTML = messages.map(m => {
+    if (m.role === 'user') return `<div class="cb-msg user">${esc(m.text)}</div>`;
+    const e = m.grade && byNum(m.grade.num);
+    return `<div class="cb-msg model${e ? ' grade' : ''}">${e ? gradeHtml(e, m.grade.g, m.grade.meta) : md(m.text)}</div>`;
+  }).join('');
   el.cbBody.scrollTop = el.cbBody.scrollHeight;
 }
 
@@ -770,13 +1028,15 @@ async function send() {
   if (!hasKey()) { render(); return; }
 
   const askedAbout = pinned;
+  const grading = interviewMode && !!askedAbout;
   el.cbText.value = '';
   el.cbText.style.height = 'auto';
   suggestions = [];
   paintGhost();
 
   if (!messages.length) el.cbBody.innerHTML = '';
-  const shown = askedAbout ? `[#${askedAbout.num}] ${text}` : text;
+  const shown = grading ? `🎤 [#${askedAbout.num}] ${text}`
+              : askedAbout ? `[#${askedAbout.num}] ${text}` : text;
   messages.push({ role: 'user', text: shown });
   bubble('user').textContent = shown;
 
@@ -789,16 +1049,33 @@ async function send() {
   controller = new AbortController();
 
   const model = getModel();
-  const ctx = buildContext(text + ' ' + (askedAbout?.question || ''), askedAbout);
-  const ask = askedAbout ? `Người dùng đang hỏi VỀ CÂU #${askedAbout.num} ("${askedAbout.question}").\nCÂU HỎI: ${text}` : 'CÂU HỎI: ' + text;
-  const req = {
-    system: SYSTEM(),
-    history: messages.slice(-9, -1),
-    prompt: (ctx ? ctx + '\n\n---\n\n' : '') + ask
-  };
+  // Chấm điểm tự dựng prompt riêng (đã có sẵn đáp án chuẩn của câu đang ghim)
+  const req = grading ? null : (() => {
+    const ctx = buildContext(text + ' ' + (askedAbout?.question || ''), askedAbout);
+    const ask = askedAbout ? `Người dùng đang hỏi VỀ CÂU #${askedAbout.num} ("${askedAbout.question}").\nCÂU HỎI: ${text}` : 'CÂU HỎI: ' + text;
+    return {
+      system: SYSTEM(),
+      history: messages.slice(-9, -1),
+      prompt: (ctx ? ctx + '\n\n---\n\n' : '') + ask
+    };
+  })();
 
   let acc = '';
   try {
+    if (grading) {
+      const g = await gradeAnswer(askedAbout, text, controller.signal);
+      const meta = saveScore(askedAbout.num, g.score);
+      acc = gradeText(askedAbout, g);
+      out.className = 'cb-msg model grade';
+      out.innerHTML = gradeHtml(askedAbout, g, meta);
+      messages.push({ role: 'model', text: acc, grade: { num: askedAbout.num, g, meta } });
+      saveHistory();
+      gradedOnce = true;
+      paintPinBest();
+      chips = INTERVIEW_CHIPS_AFTER.slice();
+      paintChips();
+      return;
+    }
     for await (const delta of streamAnswer(req, controller.signal)) {
       acc += delta;
       out.innerHTML = md(acc);
